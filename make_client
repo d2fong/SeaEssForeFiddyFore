@@ -1,0 +1,4 @@
+#!/bin/bash
+
+g++ client1.c rpc_client.cpp  Client.cpp -o client
+
