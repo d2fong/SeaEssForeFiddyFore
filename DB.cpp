@@ -52,8 +52,9 @@ void Args::set_arg_types(int arg_type) {
 
 string Args::get_args_key() {
     string delimiter = "|";
-    return to_stri(input) + delimiter + to_stri(output) + delimiter + to_stri(type)
+    string s= to_stri(input) + delimiter + to_stri(output) + delimiter + to_stri(type)
            + delimiter + to_stri(arr_length) + delimiter + to_stri(scalar);
+    return s;
 }
 
 
@@ -76,8 +77,7 @@ void Function::gen_key() {
     for (int i=0; i < arg_length; i++) {
         as += args[i].get_args_key() + delimiter;
     }
-
-    string arg_str = as.substr(0, args.size()-1);
+    string arg_str = as.substr(0, as.size()-1);
     key = name + delimiter + to_stri(arg_length) + delimiter + arg_str;
 }
 

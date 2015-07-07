@@ -116,12 +116,8 @@ int create_connection_socket(unsigned short portnum, unsigned short* ret_port, c
  */
 int connect_to(char* addr, char* port) {
 
-    // This code references the provided resource on the cs454 coursepage:
-    // http://beej.us/guide/bgnet/output/html/multipage/syscalls.html#getaddrinfo
-
     struct addrinfo hints, *res;
     int sockfd;
-
     // first, load up address structs with getaddrinfo():
 
     memset(&hints, 0, sizeof hints);
@@ -137,6 +133,8 @@ int connect_to(char* addr, char* port) {
     // connect!
 
     if (connect(sockfd, res->ai_addr, res->ai_addrlen) != 0) {
+        cout << "GOT HERE"<< endl;
+
         return -1;
     }
     else {

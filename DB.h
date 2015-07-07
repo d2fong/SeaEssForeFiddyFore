@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -47,7 +48,7 @@ private:
 public:
     Function() {}
     Function(string name, int *arg_types, int arg_length) : name(name), arg_types(arg_types),arg_length(arg_length) {
-        get_args();
+        gen_args();
         gen_key();
     }
     string get_name();

@@ -10,11 +10,8 @@ class Binder {
 private:
     unsigned short binderPort;
     char* binderAddr;
-
-//    FuncDb fdb;
-
     void print_status();
-
+    int handle_request(int socket, int length);
 
 public:
 
@@ -34,7 +31,7 @@ public:
 //
 //
 //    Message receive_terminate_request();
-//    Message receive_register_request();
+      int receive_register_request(int socket, int length);
 //    Message receive_location_request();
 
 
