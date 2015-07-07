@@ -1,5 +1,9 @@
 
+client: Client.cpp rpc_client.cpp client1.c
+	g++ Client.cpp rpc_client.cpp client1.c -o client
 
+binder: Binder.cpp binder_main.cpp
+	g++ Binder.cpp binder_main.cpp -o binder
 
-binder: Binder.cpp
-	g++ Binder.cpp -o binder
+client_class: Client.cpp
+	g++ Client.cpp -o client_class

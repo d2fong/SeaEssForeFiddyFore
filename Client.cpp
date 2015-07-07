@@ -1,17 +1,127 @@
 //
 // Created by Dylan Fong on 2015-07-05.
 //
+
+
+#include "Client.h"
+
+#include <iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
+
+
+int Client::get_binder_socket() {
+    return binderSocket;
+}
+
+int Client::get_server_socket() {
+    return serverSocket;
+}
+
+int Client::connect_to_something(char *addr, char *port) {
+    struct addrinfo hints, *res;
+    int s;
+    int connectionResult;
+
+    // first, load up address structs with getaddrinfo():
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    getaddrinfo(addr, port, &hints, &res);
+
+    // make a socket:
+    s = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+
+    if (s < 0) {
+        return s;
+    }
+
+    // connect!
+    connectionResult = connect(s, res->ai_addr, res->ai_addrlen);
+
+    if (connectionResult != 0) {
+        return connectionResult;
+    }
+
+    // set the binder socket to be the sockfd
+    binderSocket = s;
+
+    return 0;
+
+}
+
+
+Message create_location_request(char* func_name, int* argTypes) {
+    return Message();
+}
+
+//Create a execute request message
+Message create_execute_request(char* func_name, int* argTypes, void** args){
+    return Message();
+}
+
+//Send the location request message
+int send_location_request(Message m) {
+    return 0;
+}
+
+//Send the execute request message
+int send_execute_request(Message m) {
+    return 0;
+}
+
+//Receive the location response message
+Message receive_location_response() {
+    return Message();
+}
+
+//Receive the execute response message
+Message receive_execute_response() {
+    return Message();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 //
-//#include "Client.h"
-//
-//#include <iostream>
-//#include <stdio.h>
-//#include <string.h>
-//#include <sys/socket.h>
-//#include <netinet/in.h>
-//#include <netdb.h>
-//#include <protocol.h>
 //
 //
 //// From http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#sendall
