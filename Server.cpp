@@ -25,10 +25,10 @@ int Server::get_port() {
     return port;
 }
 
-BinderRegisterMessage Server::create_register_message(Function f) {
+RegisterMessage Server::create_register_message(Function f) {
 
     int key_size = f.get_key().length() + 1;
-    BinderRegisterMessage ret = BinderRegisterMessage();
+    RegisterMessage ret = RegisterMessage();
     ret.setType(REGISTER);
 
     //create a length to form the message
@@ -59,6 +59,6 @@ BinderRegisterMessage Server::create_register_message(Function f) {
     return ret;
 }
 
-int Server::send_register_request(BinderRegisterMessage m, int binderSocket) {
-
+int Server::send_register_request(RegisterMessage m, int binderSocket) {
+    return 0;
 }

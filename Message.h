@@ -86,7 +86,7 @@ public:
 };
 
 
-class BinderRegisterMessage: public Message {
+class RegisterMessage : public Message {
 private:
     string s_name;
     int s_port;
@@ -96,8 +96,8 @@ private:
     int buff_length;
 
 public:
-    BinderRegisterMessage(){}
-    BinderRegisterMessage(string s_name, int s_port, Function f, char* buff, int buff_length): s_name(s_name), s_port(s_port), f_name(f.get_name()),
+    RegisterMessage(){}
+    RegisterMessage(string s_name, int s_port, Function f, char* buff, int buff_length): s_name(s_name), s_port(s_port), f_name(f.get_name()),
                                                                                                arg_key(f.get_key()), buff(buff), buff_length(buff_length) { }
     char * getBuff() {
         return  buff;
