@@ -1,7 +1,7 @@
 #include <iostream>
 #include <map>
 #include <sys/socket.h>
-
+#include <string>
 
 // File includes
 #include "constants.h"
@@ -41,9 +41,9 @@ int rpcInit() {
         return ERR_BINDER_CONNECT_FAIL;
     }
 
-    s = Server::Server(string(ret_host), ret_port, client_socket,binder_socket);
+    s = Server(string(ret_host), ret_port, client_socket,binder_socket);
 
-    printf ("%s \n", "Connected to binder");
+    cout << "Connected to binder" << endl;
     return 0;
 }
 
@@ -52,41 +52,39 @@ int rpcInit() {
  * 2) Adds <serverId, function> to a local map
  * */
 //int rpcRegister(char* name, int* argTypes, skeleton f) {
-//    //TODO
-//    msg request;
-//    msg response;
+//
 //
 //    int arg_length = 0;
-//
 //    while (argTypes[arg_length++]);
 //
 //    Function func = Function(string(name), argTypes, arg_length-1);
 //
 //    cout << "Got to beginning of rpcRegister" << endl;
 //
-//    BinderRegisterMessage reg_msg = s.create_register_message(func);
+//    RegisterMessage reg_msg = s.create_register_message(func);
 //    if (reg_msg == NULL) {
 //        return ERR_REG_FAIL;
 //    }
 //
 //    cout << "Binder Register Message generated" << endl;
 //
-//    int m_send = s.send_register_request(reg_msg, s.get_binder_socket());
-//    if (m_send == -1) {
-//        return ERR_REG_FAIL;
-//    }
-//
-//    int m_recv = recv_message(BINDER_FD, &response);
-//    if (response.type == REGISTER_FAILURE) {
-//        return ERR_REG_FAIL;
-//    }
-//    else if(response.type == REGISTER_WARNING) {
-//        return REGISTER_WARNING;
-//    }
-//    else {
-//        return 0;
-////        return update_local_db(func, f);
-//    }
+////    int m_send = s.send_register_request(reg_msg, s.get_binder_socket());
+////    if (m_send == -1) {
+////        return ERR_REG_FAIL;
+////    }
+////
+////    int m_recv = recv_message(BINDER_FD, &response);
+////    if (response.type == REGISTER_FAILURE) {
+////        return ERR_REG_FAIL;
+////    }
+////    else if(response.type == REGISTER_WARNING) {
+////        return REGISTER_WARNING;
+////    }
+////    else {
+////        return 0;
+//////        return update_local_db(func, f);
+////    }
+//    return 0;
 //}
 //
 //int update_local_db(func_info *func, skeleton f) {

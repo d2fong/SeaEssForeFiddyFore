@@ -9,7 +9,9 @@
 #include <iostream>
 #include <netdb.h>
 #include <unistd.h>
+#include <string.h>
 
+using namespace std;
 
 /**
  * Get the size of a argsArray passed by the rpcCall
