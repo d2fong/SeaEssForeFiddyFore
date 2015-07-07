@@ -9,7 +9,7 @@
 
 
 #include "rpc.h"
-#include "client.h"
+#include "Client.h"
 #include <stdlib.h>
 
 Client c;

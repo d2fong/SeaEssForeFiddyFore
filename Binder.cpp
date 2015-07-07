@@ -9,6 +9,8 @@
 #include <sys/select.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <stdio.h>
+#include <string.h>
 
 using namespace std;
 
