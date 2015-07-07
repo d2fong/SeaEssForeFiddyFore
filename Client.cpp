@@ -84,6 +84,8 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     int type = htonl(m.getType());
     result += send(binderSocket, (const char*)&type, 4, 0);
 
+    cout << type << " " << m.getType() << " " << endl;
+
     //Send the function length
     int funcLength = htonl(m.getFuncNameLength());
     result += send(binderSocket, (const char*)&funcLength, 4, 0);
