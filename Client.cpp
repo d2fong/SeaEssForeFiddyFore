@@ -102,6 +102,8 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     //Send the args buffer
     result +=send(binderSocket, (const char*)m.getArgTypesBuffer(), m.getArgTypesLength(), 0);
 
+    delete m.getArgTypesBuffer();
+    delete m.getFuncNameBuffer();
     return result;
 }
 
