@@ -5,54 +5,91 @@
 #ifndef CS4544REEAL_MESSAGE_H
 #define CS4544REEAL_MESSAGE_H
 
-enum MessageType {
-    REGISTER,
-    REGISTER_SUCCESS,
-    REGISTER_FAILURE,
+static int    REGISTER = 1;
+static int    REGISTER_SUCCESS = 2;
+static int    REGISTER_FAILURE = 3;
 
-    LOCATION_REQUEST,
-    LOCATION_SUCCESS,
-    LOCAITON_FAILURE,
+static int    LOCATION_REQUEST = 4;
+static int    LOCATION_SUCCESS = 5;
+static int    LOCAITON_FAILURE = 6;
 
-    EXECUTE,
-    EXECUTE_SUCCESS,
-    EXECUTE_FAILURE,
+static int    EXECUTE = 7;
+static int    EXECUTE_SUCCESS = 8;
+static int    EXECUTE_FAILURE = 9;
 
-    TERMINATE
-};
+static int    TERMINATE;
 
 
 class Message {
 private:
-    MessageType t;
-    int payloadlength;
-//    MessageContent payload;
+    int type;
 
 public:
     Message() { }
-//    Message(const MessageType &t, int payloadlength, const ::Message::MessageContent &payload) : t(t), payloadlength(
-//            payloadlength), payload(payload) { }
 
     int send(int socket);
 
 
-    const MessageType &getT() const {
-        return t;
+    const int &getType() const {
+        return type;
     }
 
-    int getPayloadlength() const {
-        return payloadlength;
+    void setType(const int &t) {
+        Message::type = type;
+    }
+
+};
+
+class LocationRequestMessage: public Message {
+private:
+    int funcNameLength;
+    int argTypesLength;
+    char* funcNameBuffer;
+    char* argTypesBuffer;
+
+public:
+
+    LocationRequestMessage(int funcNameLength, int argTypesLength, char *funcNameBuffer, char *argTypesBuffer)
+            : funcNameLength(funcNameLength), argTypesLength(argTypesLength), funcNameBuffer(funcNameBuffer),
+              argTypesBuffer(argTypesBuffer) {
+
+        Message::setType(LOCATION_REQUEST);
     }
 
 
-    void setT(const MessageType &t) {
-        Message::t = t;
+    int getFuncNameLength() const {
+        return funcNameLength;
     }
 
-    void setPayloadlength(int payloadlength) {
-        Message::payloadlength = payloadlength;
+    void setFuncNameLength(int funcNameLength) {
+        LocationRequestMessage::funcNameLength = funcNameLength;
+    }
+
+    int getArgTypesLength() const {
+        return argTypesLength;
+    }
+
+    void setArgTypesLength(int argTypesLength) {
+        LocationRequestMessage::argTypesLength = argTypesLength;
+    }
+
+    char *getFuncNameBuffer() const {
+        return funcNameBuffer;
+    }
+
+    void setFuncNameBuffer(char *funcNameBuffer) {
+        LocationRequestMessage::funcNameBuffer = funcNameBuffer;
+    }
+
+    char *getArgTypesBuffer() const {
+        return argTypesBuffer;
+    }
+
+    void setArgTypesBuffer(char *argTypesBuffer) {
+        LocationRequestMessage::argTypesBuffer = argTypesBuffer;
     }
 };
+
 
 
 //class MessageContent {

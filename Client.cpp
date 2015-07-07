@@ -4,6 +4,8 @@
 
 
 #include "Client.h"
+#include "helpers.h"
+#include "constants.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -58,20 +60,55 @@ int Client::connect_to_something(char *addr, char *port) {
 
 }
 
+LocationRequestMessage Client::create_location_request(char* funcName, int* argTypes) {
+    int funcNameLength = (strlen(funcName) + 1) * sizeof(char);
+    int argTypesLength = get_int_array_length(argTypes) * sizeof(int);
 
-Message create_location_request(char* func_name, int* argTypes) {
-    return Message();
-}
+    //Encode the funcname and argTypes into the buffer
+    if (funcNameLength > MAXFUNCNAME) {
+        funcNameLength = MAXFUNCNAME;
+    }
+    char* funcNameBuf = new char[funcNameLength];
+    char* argTypesBuf = new char[argTypesLength];
 
-//Create a execute request message
-Message create_execute_request(char* func_name, int* argTypes, void** args){
-    return Message();
+    memcpy(funcNameBuf, funcName, funcNameLength);
+    memcpy(argTypesBuf, argTypes, argTypesLength);
+
+    return LocationRequestMessage(funcNameLength, argTypesLength, funcNameBuf, argTypesBuf);
 }
 
 //Send the location request message
-int send_location_request(Message m) {
-    return 0;
+int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
+    int result = 0;
+    //First send the message type to the binder
+    int type = htonl(m.getType());
+    result += send(binderSocket, (const char*)&type, 4, 0);
+
+    //Send the function length
+    int funcLength = htonl(m.getFuncNameLength());
+    result += send(binderSocket, (const char*)&funcLength, 4, 0);
+
+    //Send the function name buffer
+    result += send(binderSocket, (const char*)m.getFuncNameBuffer(), m.getFuncNameLength(), 0);
+
+    //Send the argTypes length
+    int argsLength = htonl(m.getArgTypesLength());
+    result += send(binderSocket, (const char*)&argsLength, 4, 0);
+
+    //Send the args buffer
+    result +=send(binderSocket, (const char*)m.getArgTypesBuffer(), m.getArgTypesLength(), 0);
+
+    return result;
 }
+
+
+
+//Create a execute request message
+Message Client::create_execute_request(char* func_name, int* argTypes, void** args){
+    return Message();
+}
+
+
 
 //Send the execute request message
 int send_execute_request(Message m) {

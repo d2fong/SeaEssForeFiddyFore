@@ -23,17 +23,20 @@ int rpcCall(char* name, int* argTypes, void** args) {
 
     c = Client();
 
+    //Connect to the binder
     int connectionResult = c.connect_to_something(binderAddr, binderPort);
     if (connectionResult < 0) {
-	cout << "error: rpc_client couldn't connect to binder" << endl;
+	    cout << "error: rpc_client couldn't connect to binder" << endl;
         return connectionResult;
     }
-//
-//    Message locMsg = c.create_location_request(name, argTypes);
-//    int messageResult = c.send_location_request(locMsg);
-//    if (messageResult < 0) {
-//        return messageResult;
-//    }
+
+    //Create a message and serialize name and argTypes into a buffer
+    LocationRequestMessage locMsg = c.create_location_request(name, argTypes);
+    int messageResult = c.send_location_request(locMsg, c.get_binder_socket());
+    if (messageResult < 0) {
+        cout << "error: rpc_client couldn't send the message correctly" << endl;
+        return messageResult;
+    }
 //    Message locRsp = c.receive_location_response();
 //
 //    if (locRsp.messageType == LOCATION_FAILURE) {

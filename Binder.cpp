@@ -3,6 +3,7 @@
 //
 
 #include "Binder.h"
+#include "constants.h"
 
 #include <iostream>
 #include <map>
@@ -15,8 +16,6 @@
 
 using namespace std;
 
-int MAXHOSTNAME = 32;
-int BINDERPORT = 52014;
 
 int create_connection_socket(unsigned short portnum, unsigned short* ret_port, char* ret_host)
 {
