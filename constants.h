@@ -1,0 +1,13 @@
+//
+// Created by Dylan Fong on 2015-07-07.
+//
+
+#ifndef CS4544REEAL_CONSTANTS_H
+#define CS4544REEAL_CONSTANTS_H
+#define MAXHOSTNAME 64
+#define BINDERPORT 52014
+#define SERVERPORT 0
+#define MAXFUNCNAME 64
+
+
+#endif //CS4544REEAL_CONSTANTS_H
