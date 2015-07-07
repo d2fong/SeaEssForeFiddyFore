@@ -7,5 +7,8 @@
 
 
 int get_int_array_length(int* intArray);
+int send_all(int socket, char* buf, int* bytesToSend);
+int recv_all(int socket, char* buf, int* bytesToReceive);
+
 
 #endif //CS4544REEAL_SOURCE_FILE_H
