@@ -3,7 +3,7 @@
 //
 
 #include "helpers.h"
-
+#include <sys/socket.h>
 
 /**
  * Get the size of a argsArray passed by the rpcCall
@@ -25,11 +25,11 @@ int send_all(int socket, char* buf, int* bytesToSend) {
     int bytesLeft = *bytesToSend; // how many we have left to send
     int n;
 
-    while(total < *len) {
+    while(total < *bytesToSend) {
         n = send(socket, buf+total, bytesLeft, 0);
         if (n == -1) { break; }
         total += n;
-        bytesToSend -= n;
+        bytesLeft -= n;
     }
 
      *bytesToSend = total; // return number actually sent here
@@ -45,11 +45,11 @@ int send_all(int socket, char* buf, int* bytesToSend) {
     int bytesLeft = *bytesToReceive;
     int n;
 
-    while(total < *len) {
+    while(total < *bytesToReceive) {
         n = recv(socket, buf+total,bytesLeft, 0);
         if (n == -1) { break; }
         total += n;
-        bytesToReceive -= n;
+        bytesLeft -= n;
     }
 
     *bytesToReceive = total;
