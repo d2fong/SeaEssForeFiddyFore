@@ -111,7 +111,7 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     //Send the argTypes length
     int argsLength = htonl(m.getArgTypesLength());
     int argsLengthExpected = m.getArgTypesLength();
-    result += send_all(binderSocket, &argsLength, &argsLengthExpected);
+    result += send_all(binderSocket, (char*)&argsLength, &argsLengthExpected);
     if (argsLengthExpected != m.getArgTypesLength()) {
         return -1;
     }
