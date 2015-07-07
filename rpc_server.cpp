@@ -13,7 +13,6 @@
 using namespace std;
 
 Server s;
-map <string, skeleton> func_db;
 
 
 /**
