@@ -110,11 +110,19 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
 
     //Send the argTypes length
     int argsLength = htonl(m.getArgTypesLength());
-    result += send(binderSocket, &argsLength, 4, 0);
+    int argsLengthExpected = m.getArgTypesLength();
+    result += send_all(binderSocket, &argsLength, &argsLengthExpected);
+    if (argsLengthExpected != m.getArgTypesLength()) {
+        return -1;
+    }
 
     //Send the args buffer
-    result +=send(binderSocket, m.getArgTypesBuffer(), m.getArgTypesLength(), 0);
-
+    int argsBufferExpected = m.getArgTypesLength();
+    result += send_all(binderSocket, m.getArgTypesBuffer(), &argsBufferExpected);
+    if (argsBufferExpected != m.getArgTypesLength()) {
+        return -1;
+    }
+    
     delete m.getArgTypesBuffer();
     delete m.getFuncNameBuffer();
     return result;
