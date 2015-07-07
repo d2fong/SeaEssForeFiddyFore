@@ -51,10 +51,7 @@ public:
 
     LocationRequestMessage(int funcNameLength, int argTypesLength, char *funcNameBuffer, char *argTypesBuffer)
             : funcNameLength(funcNameLength), argTypesLength(argTypesLength), funcNameBuffer(funcNameBuffer),
-              argTypesBuffer(argTypesBuffer) {
-
-        Message::setType(LOCATION_REQUEST);
-    }
+              argTypesBuffer(argTypesBuffer) {}
 
 
     int getFuncNameLength() const {
