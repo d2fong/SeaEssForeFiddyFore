@@ -9,6 +9,8 @@
 #include <sys/select.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <stdio.h>
+#include <string.h>
 
 using namespace std;
 
@@ -56,9 +58,6 @@ int create_connection_socket(unsigned short portnum, unsigned short* ret_port, c
     listen(s, 5);
     return(s);
 }
-
-int handl
-
 
 int Binder::init() {
     char addr[MAXHOSTNAME+1];
