@@ -30,12 +30,12 @@ public:
     int send(int socket);
 
 
-    const int &getType() const {
+    int getType() {
         return type;
     }
 
-    void setType(const int &t) {
-        Message::type = type;
+    void setType(int t) {
+        type = t;
     }
 
 };

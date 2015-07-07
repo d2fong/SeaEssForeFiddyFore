@@ -76,8 +76,8 @@ LocationRequestMessage Client::create_location_request(char* funcName, int* argT
     memcpy(argTypesBuf, argTypes, argTypesLength);
 
     LocationRequestMessage ret = LocationRequestMessage(funcNameLength, argTypesLength, funcNameBuf, argTypesBuf);
-    ret.setType(LOCATION_REQUEST);
-
+    ret.setType(4);
+    
     return ret;
 }
 
