@@ -8,6 +8,10 @@ set(SOURCE_FILES
     test/ClientTest.h
     Client.cpp
     Client.h
-    client1.c)
+    client1.c
+    Binder.cpp
+    binder_main.cpp)
 
-add_executable(cs4544Reeal ${SOURCE_FILES})
+#add_executable(cs4544Reeal ${SOURCE_FILES})
+add_executable(binder binder_main.cpp Binder.cpp helpers.cpp)
+

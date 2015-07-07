@@ -1,4 +1,4 @@
-#include "rpc.h"
+#include "../rpc.h"
 #include "server_function_skels.h"
 
 int main(int argc, char *argv[]) {
@@ -52,14 +52,14 @@ int main(int argc, char *argv[]) {
   /* 
    * register server functions f0~f4
    */
-  rpcRegister("f0", argTypes0, *f0_Skel);
-  rpcRegister("f1", argTypes1, *f1_Skel);
-  rpcRegister("f2", argTypes2, *f2_Skel);
-  rpcRegister("f3", argTypes3, *f3_Skel);
-  rpcRegister("f4", argTypes4, *f4_Skel);
-
-  /* call rpcExecute */
-  rpcExecute();
+//  rpcRegister("f0", argTypes0, *f0_Skel);
+//  rpcRegister("f1", argTypes1, *f1_Skel);
+//  rpcRegister("f2", argTypes2, *f2_Skel);
+//  rpcRegister("f3", argTypes3, *f3_Skel);
+//  rpcRegister("f4", argTypes4, *f4_Skel);
+//
+//  /* call rpcExecute */
+//  rpcExecute();
 
   /* return */
   return 0;

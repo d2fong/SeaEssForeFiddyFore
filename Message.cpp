@@ -4,6 +4,4 @@
 
 #include "Message.h"
 
-int Message::send(int socket) {
-    return 0;
-}
+

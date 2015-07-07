@@ -1,9 +1,10 @@
-//
-// Created by Dylan Fong on 2015-07-06.
-//
-
 #ifndef CS4544REEAL_MESSAGE_H
 #define CS4544REEAL_MESSAGE_H
+
+
+#include "DB.h"
+using namespace std;
+
 
 static int    REGISTER = 1;
 static int    REGISTER_SUCCESS = 2;
@@ -26,9 +27,6 @@ private:
 
 public:
     Message() { }
-
-    int send(int socket);
-
 
     int getType() {
         return type;
@@ -84,6 +82,53 @@ public:
 
     void setArgTypesBuffer(char *argTypesBuffer) {
         LocationRequestMessage::argTypesBuffer = argTypesBuffer;
+    }
+};
+
+
+class RegisterMessage : public Message {
+private:
+    string s_name;
+    int s_port;
+    string f_name;
+    string arg_key;
+    char *buff;
+    int buff_length;
+
+public:
+    RegisterMessage(){}
+    RegisterMessage(string s_name, int s_port, Function f, char* buff, int buff_length): s_name(s_name), s_port(s_port), f_name(f.get_name()),
+                                                                                               arg_key(f.get_key()), buff(buff), buff_length(buff_length) { }
+    char * getBuff() {
+        return  buff;
+    }
+
+    int getBuffLength() {
+        return buff_length;
+    }
+
+    void set_s_name (string s) {
+        s_name = s;
+    }
+
+    void set_port (int p) {
+        s_port = p;
+    }
+
+    void set_f_name (string f) {
+        f_name = f;
+    }
+
+    void set_arg_key(string k) {
+        arg_key =k;
+    }
+
+    void set_buff (char *b) {
+        buff = b;
+    }
+
+    void set_buff_length (int len) {
+        buff_length = len;
     }
 };
 

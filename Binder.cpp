@@ -4,6 +4,7 @@
 
 #include "Binder.h"
 #include "constants.h"
+#include "helpers.h"
 
 #include <iostream>
 #include <map>
@@ -16,48 +17,6 @@
 
 using namespace std;
 
-
-int create_connection_socket(unsigned short portnum, unsigned short* ret_port, char* ret_host)
-{
-    int    s;
-    struct sockaddr_in sa;
-    struct hostent *hp;
-    char myname[MAXHOSTNAME+1];
-
-    memset(&sa, 0, sizeof(struct sockaddr_in)); /* clear our address */
-    int a = gethostname(myname, MAXHOSTNAME);           /* who are we? */
-    hp = gethostbyname(myname);                  /* get our address info */
-
-    if (hp == NULL)                           /* we don't exist !? */
-        return(-1);
-
-    sa.sin_family= AF_INET;              /* this is our host address */
-    sa.sin_addr.s_addr = INADDR_ANY;
-    sa.sin_port= htons(portnum);                /* this is our port number */
-
-    if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        return(-1);
-
-    }
-
-    if (bind(s,(struct sockaddr *) &sa,sizeof(struct sockaddr_in)) < 0) {
-        close(s);
-        return(-1);                               /* bind address to socket */
-    }
-
-    socklen_t len = sizeof(sa);
-    if(getsockname(s, (struct sockaddr *)&sa, &len) == -1) {
-        return(-1);
-    }
-
-    //copy the host name and port numbers to stack arguments
-    strncpy(ret_host, hp->h_name, strlen(hp->h_name) + 1);
-    *ret_port = (unsigned short) ntohs(sa.sin_port);
-
-    //listen to at most 5 clients
-    listen(s, 5);
-    return(s);
-}
 
 int Binder::init() {
     char addr[MAXHOSTNAME+1];
