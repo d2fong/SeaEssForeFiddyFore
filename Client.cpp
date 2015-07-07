@@ -61,6 +61,7 @@ int Client::connect_to_something(char *addr, char *port) {
 }
 
 LocationRequestMessage Client::create_location_request(char* funcName, int* argTypes) {
+
     int funcNameLength = (strlen(funcName) + 1) * sizeof(char);
     int argTypesLength = get_int_array_length(argTypes) * sizeof(int);
 
@@ -74,7 +75,10 @@ LocationRequestMessage Client::create_location_request(char* funcName, int* argT
     memcpy(funcNameBuf, funcName, funcNameLength);
     memcpy(argTypesBuf, argTypes, argTypesLength);
 
-    return LocationRequestMessage(funcNameLength, argTypesLength, funcNameBuf, argTypesBuf);
+    LocationRequestMessage ret = LocationRequestMessage(funcNameLength, argTypesLength, funcNameBuf, argTypesBuf);
+    ret.setType(4);
+    
+    return ret;
 }
 
 //Send the location request message
@@ -98,6 +102,8 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     //Send the args buffer
     result +=send(binderSocket, (const char*)m.getArgTypesBuffer(), m.getArgTypesLength(), 0);
 
+    delete m.getArgTypesBuffer();
+    delete m.getFuncNameBuffer();
     return result;
 }
 

@@ -30,12 +30,12 @@ public:
     int send(int socket);
 
 
-    const int &getType() const {
+    int getType() {
         return type;
     }
 
-    void setType(const int &t) {
-        Message::type = type;
+    void setType(int t) {
+        type = t;
     }
 
 };
@@ -51,10 +51,7 @@ public:
 
     LocationRequestMessage(int funcNameLength, int argTypesLength, char *funcNameBuffer, char *argTypesBuffer)
             : funcNameLength(funcNameLength), argTypesLength(argTypesLength), funcNameBuffer(funcNameBuffer),
-              argTypesBuffer(argTypesBuffer) {
-
-        Message::setType(LOCATION_REQUEST);
-    }
+              argTypesBuffer(argTypesBuffer) {}
 
 
     int getFuncNameLength() const {
