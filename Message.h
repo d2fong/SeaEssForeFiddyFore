@@ -6,19 +6,19 @@
 using namespace std;
 
 
-static int    REGISTER = 1;
-static int    REGISTER_SUCCESS = 2;
-static int    REGISTER_FAILURE = 3;
+const int    REGISTER = 1;
+const int    REGISTER_SUCCESS = 2;
+const int    REGISTER_FAILURE = 3;
 
-static int    LOCATION_REQUEST = 4;
-static int    LOCATION_SUCCESS = 5;
-static int    LOCAITON_FAILURE = 6;
+const int    LOCATION_REQUEST = 4;
+const int    LOCATION_SUCCESS = 5;
+const int    LOCAITON_FAILURE = 6;
 
-static int    EXECUTE = 7;
-static int    EXECUTE_SUCCESS = 8;
-static int    EXECUTE_FAILURE = 9;
+const int    EXECUTE = 7;
+const int    EXECUTE_SUCCESS = 8;
+const int    EXECUTE_FAILURE = 9;
 
-static int    TERMINATE;
+const int    TERMINATE = 10;
 
 
 class Message {
@@ -129,6 +129,15 @@ public:
 
     void set_buff_length (int len) {
         buff_length = len;
+    }
+
+    void set_register_message(string host, int port, Function f, char* buf, int length) {
+        s_name = host;
+        s_port = port;
+        f_name = f.get_name();
+        arg_key =f.get_key();
+        buff= buf;
+        buff_length= length;
     }
 };
 
