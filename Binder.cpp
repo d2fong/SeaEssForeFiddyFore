@@ -136,7 +136,7 @@ int Binder::init() {
                 else {
                       // The first thing our clients will do is send us the message type
                     int clientMessageType;
-                    int nbytes = recv(i, (const char*)&clientMessageType, 4, 0);
+                    int nbytes = recv(i, (char*)&clientMessageType, 4, 0);
                     if (nbytes <= 0) {
                         // got error or connection closed by client
                         if (nbytes == 0) {
