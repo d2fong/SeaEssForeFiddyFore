@@ -10,18 +10,22 @@
 
 #include "rpc.h"
 #include "Client.h"
+
+#include <iostream>
 #include <stdlib.h>
 
+using namespace std;
 Client c;
 
 int rpcCall(char* name, int* argTypes, void** args) {
-    char* binderAddr = getenv("BINDER_ADDR");
+    char* binderAddr = getenv("BINDER_ADDRESS");
     char* binderPort = getenv("BINDER_PORT");
 
     c = Client();
 
     int connectionResult = c.connect_to_something(binderAddr, binderPort);
     if (connectionResult < 0) {
+	cout << "error: rpc_client couldn't connect to binder" << endl;
         return connectionResult;
     }
 //

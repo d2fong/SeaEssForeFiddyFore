@@ -39,6 +39,7 @@ int Client::connect_to_something(char *addr, char *port) {
     s = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
     if (s < 0) {
+	cout << "error: socket failure" << endl;
         return s;
     }
 
@@ -46,6 +47,7 @@ int Client::connect_to_something(char *addr, char *port) {
     connectionResult = connect(s, res->ai_addr, res->ai_addrlen);
 
     if (connectionResult != 0) {
+        cout << "error: connection failure" << endl;
         return connectionResult;
     }
 

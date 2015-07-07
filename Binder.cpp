@@ -161,7 +161,7 @@ int Binder::init() {
 }
 
 void Binder::print_status() {
-    cout << "BINDER_ADDR " <<  binderAddr << endl;
+    cout << "BINDER_ADDRESS " <<  binderAddr << endl;
     cout << "BINDER_PORT " << binderPort << endl;
 
 }
