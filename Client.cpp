@@ -10,7 +10,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <string.h>
 
+using namespace std;
 
 
 int Client::get_binder_socket() {
