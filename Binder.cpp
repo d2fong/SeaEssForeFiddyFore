@@ -51,19 +51,21 @@ int Binder::receive_register_request (int socket, int length) {
 }
 
 int Binder::handle_request(int socket, int type) {
-    int m_len=0;
-    int recv_length = recv(socket,&(m_len),4,0);
-    if (recv_length <0) {
-        return ERR_RECV_FAIL;
-    }
 
     switch(type){
         case REGISTER:
+            int m_len=0;
+            int recv_length = recv(socket,&(m_len),4,0);
+            if (recv_length <0) {
+                return ERR_RECV_FAIL;
+            }
             int rec_reg_req = receive_register_request(socket, ntohl(m_len));
             if (rec_reg_req != 0) {
                 return ERR_RECV_FAIL;
             }
             return 0;
+        case LOCATION_REQUEST:
+            int result = receive_location_request()
 
     }
     return 0;
