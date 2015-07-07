@@ -6,6 +6,7 @@
 using namespace std;
 
 
+//Message Types
 static int    REGISTER = 1;
 static int    REGISTER_SUCCESS = 2;
 static int    REGISTER_FAILURE = 3;
@@ -19,6 +20,10 @@ static int    EXECUTE_SUCCESS = 8;
 static int    EXECUTE_FAILURE = 9;
 
 static int    TERMINATE;
+
+//Reason Codes
+//TODO
+
 
 
 class Message {
@@ -85,6 +90,11 @@ public:
     }
 };
 
+class LocationSuccessMessage: public Message {
+private:
+    char* serverAddr;
+    char* serverPort;
+};
 
 class RegisterMessage : public Message {
 private:
@@ -133,10 +143,37 @@ public:
 };
 
 
+class LocationFailureMessage: public Message {
+private:
+    int reasonCode;
+};
 
-//class MessageContent {
-//
-//};
+class ExecuteMessage: public Message {
+private:
+    int funcNameLength;
+    int argsLength;
+    char* funcNameBuffer;
+    char* argTypesBuffer;
+    char* argsBuffer;
+};
 
+class ExecuteSuccessMessage: public Message {
+private:
+    int funcNameLength;
+    int argsLength;
+    char* funcNameBuffer;
+    char* argTypesBuffer;
+    char* argsBuffer;
+};
+
+class ExecuteFailureMessage: public Message {
+private:
+    int reasonCode;
+};
+
+class TerminateMessage: public Message {
+private:
+    int reasonCode;
+};
 
 #endif //CS4544REEAL_MESSAGE_H

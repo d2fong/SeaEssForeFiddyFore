@@ -86,21 +86,34 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     int result = 0;
     //First send the message type to the binder
     int type = htonl(m.getType());
-    result += send(binderSocket, (const char*)&type, 4, 0);
+    int intSize = 4;
+    int expected = 4;
+    result += send_all(binderSocket, (char*)&type, &expected);
+    if (expected != intSize) {
+        return -1;
+    }
 
     //Send the function length
     int funcLength = htonl(m.getFuncNameLength());
-    result += send(binderSocket, (const char*)&funcLength, 4, 0);
+    int funcLengthExpected = m.getFuncNameLength();
+    result += send_all(binderSocket, (char*)&funcLength, &funcLengthExpected);
+    if (funcLengthExpected != m.getFuncNameLength()) {
+        return -1;
+    }
 
     //Send the function name buffer
-    result += send(binderSocket, (const char*)m.getFuncNameBuffer(), m.getFuncNameLength(), 0);
+    int funcNameExpected = m.getFuncNameLength();
+    result += send_all(binderSocket, m.getFuncNameBuffer(), &funcNameExpected);
+    if (funcNameExpected != m.getFuncNameLength()) {
+        return -1;
+    }
 
     //Send the argTypes length
     int argsLength = htonl(m.getArgTypesLength());
-    result += send(binderSocket, (const char*)&argsLength, 4, 0);
+    result += send(binderSocket, &argsLength, 4, 0);
 
     //Send the args buffer
-    result +=send(binderSocket, (const char*)m.getArgTypesBuffer(), m.getArgTypesLength(), 0);
+    result +=send(binderSocket, m.getArgTypesBuffer(), m.getArgTypesLength(), 0);
 
     delete m.getArgTypesBuffer();
     delete m.getFuncNameBuffer();
