@@ -11,6 +11,7 @@
 #include "error.h"
 #include "rpc.h"
 #include "Server.h"
+#include "DB.h"
 
 using namespace std;
 
@@ -38,11 +39,14 @@ int rpcInit() {
     char *binder_addr = getenv("BINDER_ADDRESS");
     char *binder_port = getenv("BINDER_PORT");
 
+
     int binder_socket = connect_to(binder_addr, binder_port);
     if (binder_socket < 0) {
+        cout << "Could not connect to binder" << endl;
         return ERR_BINDER_CONNECT_FAIL;
     }
 
+    cout << "Host " << ret_host << endl;
     s = Server(string(ret_host), ret_port, client_socket,binder_socket);
 
     cout << "Connected to binder" << endl;
@@ -53,41 +57,37 @@ int rpcInit() {
  * 1) Calls binder and informs it that the server procedure with the indicated name and arg type is available at this server
  * 2) Adds <serverId, function> to a local map
  * */
-//int rpcRegister(char* name, int* argTypes, skeleton f) {
+int rpcRegister(char* name, int* argTypes, skeleton f) {
+
+
+    int arg_length = 0;
+    while (argTypes[arg_length++]);
+
+    Function func = Function(string(name), argTypes, arg_length-1);
+
+    cout << "Got to beginning of rpcRegister" << endl;
+    RegisterMessage reg_msg = s.create_register_message(func);
+    cout << "Binder Register Message generated" << endl;
+
+    int m_send = s.send_register_request(reg_msg, s.get_binder_socket());
+    if (m_send == -1) {
+        return ERR_REG_FAIL;
+    }
 //
-//
-//    int arg_length = 0;
-//    while (argTypes[arg_length++]);
-//
-//    Function func = Function(string(name), argTypes, arg_length-1);
-//
-//    cout << "Got to beginning of rpcRegister" << endl;
-//
-//    RegisterMessage reg_msg = s.create_register_message(func);
-//    if (reg_msg == NULL) {
+//    int m_recv = recv_message(BINDER_FD, &response);
+//    if (response.type == REGISTER_FAILURE) {
 //        return ERR_REG_FAIL;
 //    }
-//
-//    cout << "Binder Register Message generated" << endl;
-//
-////    int m_send = s.send_register_request(reg_msg, s.get_binder_socket());
-////    if (m_send == -1) {
-////        return ERR_REG_FAIL;
-////    }
-////
-////    int m_recv = recv_message(BINDER_FD, &response);
-////    if (response.type == REGISTER_FAILURE) {
-////        return ERR_REG_FAIL;
-////    }
-////    else if(response.type == REGISTER_WARNING) {
-////        return REGISTER_WARNING;
-////    }
-////    else {
-////        return 0;
-//////        return update_local_db(func, f);
-////    }
-//    return 0;
-//}
+//    else if(response.type == REGISTER_WARNING) {
+//        return REGISTER_WARNING;
+//    }
+//    else {
+//        return 0;
+////        return update_local_db(func, f);
+//    }
+    return 0;
+}
+
 //
 //int update_local_db(func_info *func, skeleton f) {
 //

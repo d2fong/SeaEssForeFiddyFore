@@ -5,6 +5,8 @@
 #include "Binder.h"
 #include "constants.h"
 #include "helpers.h"
+#include "Message.h"
+#include "error.h"
 
 #include <iostream>
 #include <map>
@@ -15,8 +17,57 @@
 #include <string.h>
 #include <stdlib.h>
 
+
 using namespace std;
 
+int Binder::receive_register_request (int socket, int length) {
+    int port;
+    char s_name [MAXHOSTNAME +1];
+    char f_name [MAXFUNCNAME + 1];
+    int key_size = length - (MAXFUNCNAME + 1 + MAXHOSTNAME + 1 + 4);
+    char key [key_size+1];
+
+    cout << "BUFF LENGTH" << length << endl;
+    char *buff = new char[length];
+    int recv_buff = recv(socket, buff, length, 0);
+    if (recv_buff <0) {
+        return ERR_RECV_FAIL;
+    }
+
+
+    memcpy (s_name, buff, MAXHOSTNAME+1);
+    memcpy (&port, buff+MAXHOSTNAME+1, 4);
+    memcpy (f_name, buff+MAXHOSTNAME+1+4, MAXFUNCNAME+1);
+    memcpy (key, buff+MAXHOSTNAME + 1 + MAXFUNCNAME + 1 + 4, key_size);
+    key[key_size] ='\0';
+
+//    cout << "Name: " << f_name << endl;
+//    cout << "S_name : " << s_name << endl;
+//    cout << "Port: " << ntohl(port) << endl;
+//    cout << "Key: " << key << endl;
+
+
+    return 0;
+}
+
+int Binder::handle_request(int socket, int type) {
+    int m_len=0;
+    int recv_length = recv(socket,&(m_len),4,0);
+    if (recv_length <0) {
+        return ERR_RECV_FAIL;
+    }
+
+    switch(type){
+        case REGISTER:
+            int rec_reg_req = receive_register_request(socket, ntohl(m_len));
+            if (rec_reg_req != 0) {
+                return ERR_RECV_FAIL;
+            }
+            return 0;
+
+    }
+    return 0;
+}
 
 int Binder::init() {
     char addr[MAXHOSTNAME+1];
@@ -93,9 +144,10 @@ int Binder::init() {
                     }
                 }
                 else {
-                      // The first thing our clients will do is send us the message type
-                    int clientMessageType;
-                    int nbytes = recv(i, (char*)&clientMessageType, 4, 0);
+
+                    int messageType;
+                    //Get Length
+                    int nbytes = recv(i, (char*)&messageType, 4, 0);
                     if (nbytes <= 0) {
                         // got error or connection closed by client
                         if (nbytes == 0) {
@@ -108,8 +160,7 @@ int Binder::init() {
                         FD_CLR(i, &master); // remove from master set
                     }
                     else {
-                        cout << ntohl(clientMessageType) << endl;
-//                        int r = handle_request(i,m);
+                        int r = handle_request(i,ntohl(messageType));
 
                     }
                 }
