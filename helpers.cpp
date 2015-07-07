@@ -9,7 +9,10 @@
 #include <iostream>
 #include <netdb.h>
 #include <unistd.h>
+#include <string.h>
+#include <sstream>
 
+using namespace std;
 
 /**
  * Get the size of a argsArray passed by the rpcCall
@@ -139,4 +142,11 @@ int connect_to(char* addr, char* port) {
     else {
         return sockfd;
     }
+}
+
+string to_stri(int i) {
+    string s;
+    stringstream out;
+    out << i;
+    return out.str();
 }
