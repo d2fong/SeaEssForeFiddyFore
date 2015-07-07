@@ -59,9 +59,6 @@ int create_connection_socket(unsigned short portnum, unsigned short* ret_port, c
     return(s);
 }
 
-int handl
-
-
 int Binder::init() {
     char addr[MAXHOSTNAME+1];
     unsigned short port;
