@@ -4,6 +4,10 @@
 
 #include "DB.h"
 #include "constants.h"
+#include <iostream>
+#include <string>
+
+using namespace std;
 
 /**
  * Args Helpers
