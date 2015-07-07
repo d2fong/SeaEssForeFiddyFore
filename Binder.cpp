@@ -134,25 +134,25 @@ int Binder::init() {
                     }
                 }
                 else {
-                    // handle data from a client
-//                    msg m;
-//                    nbytes = recv_message(i, &m);
-//                    if (nbytes <= 0) {
-//                        // got error or connection closed by client
-//                        if (nbytes == 0) {
-//                            // connection closed
-//                            printf("selectserver: socket %d hung up\n", i);
-//                        } else {
-//                            perror("recv");
-//                        }
-//                        close(i); // bye!
-//                        FD_CLR(i, &master); // remove from master set
-//                    }
-//                    else {
-//                        cout << buf << endl;
+                      // The first thing our clients will do is send us the message type
+                    int clientMessageType;
+                    int nbytes = recv(i, (const char*)&clientMessageType, 4, 0);
+                    if (nbytes <= 0) {
+                        // got error or connection closed by client
+                        if (nbytes == 0) {
+                            // connection closed
+                            printf("selectserver: socket %d hung up\n", i);
+                        } else {
+                            perror("recv");
+                        }
+                        close(i); // bye!
+                        FD_CLR(i, &master); // remove from master set
+                    }
+                    else {
+                        cout << clientMessageType << endl;
 //                        int r = handle_request(i,m);
-//
-//                    }
+
+                    }
                 }
             }
         }
