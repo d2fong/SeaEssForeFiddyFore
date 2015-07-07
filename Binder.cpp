@@ -149,7 +149,7 @@ int Binder::init() {
                         FD_CLR(i, &master); // remove from master set
                     }
                     else {
-                        cout << clientMessageType << endl;
+                        cout << ntohl(clientMessageType) << endl;
 //                        int r = handle_request(i,m);
 
                     }
