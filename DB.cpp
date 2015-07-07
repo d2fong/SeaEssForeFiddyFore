@@ -78,7 +78,7 @@ void Function::gen_key() {
     }
 
     string arg_str = as.substr(0, args.size()-1);
-    key = name + delimiter + to_string(arg_length) + delimiter + arg_str;
+    key = name + delimiter + to_stri(arg_length) + delimiter + arg_str;
 }
 
 string Function::get_name(){
