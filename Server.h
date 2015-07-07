@@ -1,31 +1,35 @@
-//
-// Created by Dylan Fong on 2015-07-06.
-//
-
 #ifndef CS4544REEAL_SERVER_H
 #define CS4544REEAL_SERVER_H
 
+#include "Message.h"
+#include "helpers.h"
+#include <string>
+
+using namespace std;
 
 class Server {
 private:
-    int sockForClient;
-    int sockForBinder;
-
+    int clientSocket;
+    int binderSocket;
+    string host;
+    int port;
 
 public:
     Server() { }
-    Server(int sockForClient, int sockForBinder) : sockForClient(sockForClient), sockForBinder(sockForBinder) { }
+    Server(string host, int port, int sockForClient, int sockForBinder) : host(host), port(port), clientSocket(sockForClient), binderSocket(sockForBinder) { }
 
-    int connect_to_binder(char* binderAddr, char* binderPort);
     int get_binder_socket();
     int get_client_socket();
 
-    Message create_register_message(char* funcName, int* argTypes);
+    string get_host();
+    int get_port();
+
+    BinderRegisterMessage create_register_message(Function f);
     Message create_execute_success_message(char* funcName, int* argTypes, void** args);
     Message create_execute_failure_message(int reasonCode);
 
 
-    void send_register_request(Message m);
+    int send_register_request(BinderRegisterMessage m, int binderSocket);
     void send_execute_request(Message m);
 
     Message receive_register_request();
