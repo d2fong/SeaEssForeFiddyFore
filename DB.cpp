@@ -4,6 +4,7 @@
 
 #include "DB.h"
 #include "constants.h"
+#include "helpers.h"
 #include <iostream>
 #include <string>
 #include <string.h>
@@ -51,8 +52,8 @@ void Args::set_arg_types(int arg_type) {
 
 string Args::get_args_key() {
     string delimiter = "|";
-    return to_string(input) + delimiter + to_string(output) + delimiter + to_string(type)
-           + delimiter + to_string(arr_length) + delimiter + to_string(scalar);
+    return to_stri(input) + delimiter + to_stri(output) + delimiter + to_stri(type)
+           + delimiter + to_stri(arr_length) + delimiter + to_stri(scalar);
 }
 
 
