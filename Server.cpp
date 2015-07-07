@@ -45,9 +45,8 @@ RegisterMessage Server::create_register_message(Function f) {
 
     char *buffer= new char[cbf_length+ibf_length];
 
-
-    memcpy(buffer,&b_length, 4); // Copy Length
-    memcpy(buffer+4,&b_type, 4); // Copy Type
+    memcpy(buffer,&b_type, 4); // Copy Type
+    memcpy(buffer+4,&b_length, 4); // Copy Length
     memcpy(buffer+8, &host, MAXHOSTNAME+1); //Server name
     memcpy(buffer+8+MAXHOSTNAME+1, &b_port, 4);
     memcpy(buffer+12+MAXHOSTNAME+1, f.get_name().c_str() ,MAXFUNCNAME +1);

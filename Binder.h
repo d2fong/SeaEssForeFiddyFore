@@ -11,7 +11,7 @@ private:
     unsigned short binderPort;
     char* binderAddr;
     void print_status();
-    int handle_request(int socket, int length);
+    int handle_request(int socket, int type);
 
 public:
 

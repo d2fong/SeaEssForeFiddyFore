@@ -45,22 +45,21 @@ int Binder::receive_register_request (int socket, int length) {
 //    cout << "S_name : " << s_name << endl;
 //    cout << "Port: " << ntohl(port) << endl;
 //    cout << "Key: " << key << endl;
-//    cout << "Actual Key size" << key_size << endl;
-//    cout << "Current key size" << strlen(key) << endl;
+
 
     return 0;
 }
 
-int Binder::handle_request(int socket, int length) {
-    int m_type=0;
-    int recv_type = recv(socket,&(m_type),4,0);
-    if (recv_type <0) {
+int Binder::handle_request(int socket, int type) {
+    int m_len=0;
+    int recv_length = recv(socket,&(m_len),4,0);
+    if (recv_length <0) {
         return ERR_RECV_FAIL;
     }
 
-    switch(ntohl(m_type)){
+    switch(type){
         case REGISTER:
-            int rec_reg_req = receive_register_request(socket, length);
+            int rec_reg_req = receive_register_request(socket, ntohl(m_len));
             if (rec_reg_req != 0) {
                 return ERR_RECV_FAIL;
             }
@@ -146,9 +145,9 @@ int Binder::init() {
                 }
                 else {
 
-                    int messageLength;
+                    int messageType;
                     //Get Length
-                    int nbytes = recv(i, (char*)&messageLength, 4, 0);
+                    int nbytes = recv(i, (char*)&messageType, 4, 0);
                     if (nbytes <= 0) {
                         // got error or connection closed by client
                         if (nbytes == 0) {
@@ -161,7 +160,7 @@ int Binder::init() {
                         FD_CLR(i, &master); // remove from master set
                     }
                     else {
-                        int r = handle_request(i,ntohl(messageLength));
+                        int r = handle_request(i,ntohl(messageType));
 
                     }
                 }
