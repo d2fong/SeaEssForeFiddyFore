@@ -2,6 +2,8 @@
 #include <map>
 #include <sys/socket.h>
 #include <string>
+#include <string.h>
+#include <stdlib.h>
 
 // File includes
 #include "constants.h"
