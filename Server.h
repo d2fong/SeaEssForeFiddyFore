@@ -3,6 +3,7 @@
 
 #include "Message.h"
 #include "helpers.h"
+#include "DB.h"
 #include <string>
 
 using namespace std;

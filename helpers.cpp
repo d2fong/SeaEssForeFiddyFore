@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <sstream>
+#include <vector>
+#include <string>
 
 using namespace std;
 
@@ -142,9 +144,19 @@ int connect_to(char* addr, char* port) {
     }
 }
 
+
 string to_stri(int i) {
     string s;
     stringstream out;
     out << i;
     return out.str();
+}
+
+void split(vector<string> &tokens, const string &text, char sep) {
+    int start = 0, end = 0;
+    while ((end = text.find(sep, start)) != string::npos) {
+        tokens.push_back(text.substr(start, end - start));
+        start = end + 1;
+    }
+    tokens.push_back(text.substr(start));
 }

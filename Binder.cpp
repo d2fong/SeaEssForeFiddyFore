@@ -1,7 +1,3 @@
-//
-// Created by Dylan Fong on 2015-07-06.
-//
-
 #include "Binder.h"
 #include "constants.h"
 #include "helpers.h"
@@ -13,12 +9,23 @@
 #include <sys/select.h>
 #include <unistd.h>
 #include <netdb.h>
-#include <stdio.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 
 using namespace std;
+
+BinderDB binder_db;
+
+int Binder::send_register_response(int socket, int flag) {
+    string buf = to_stri(flag);
+    int f_send = send(socket,&buf,4,0);
+    if (f_send < 0) {
+        return ERR_BINDER_SEND_FAIL;
+    }
+    return 0;
+}
 
 int Binder::receive_register_request (int socket, int length) {
     int port;
@@ -31,37 +38,38 @@ int Binder::receive_register_request (int socket, int length) {
     char *buff = new char[length];
     int recv_buff = recv(socket, buff, length, 0);
     if (recv_buff <0) {
-        return ERR_RECV_FAIL;
+        return ERR_BINDER_RECV_FAIL;
     }
-
 
     memcpy (s_name, buff, MAXHOSTNAME+1);
     memcpy (&port, buff+MAXHOSTNAME+1, 4);
     memcpy (f_name, buff+MAXHOSTNAME+1+4, MAXFUNCNAME+1);
     memcpy (key, buff+MAXHOSTNAME + 1 + MAXFUNCNAME + 1 + 4, key_size);
     key[key_size] ='\0';
+    s_name[MAXHOSTNAME]= '\0';
+    f_name[MAXFUNCNAME]= '\0';
 
-//    cout << "Name: " << f_name << endl;
-//    cout << "S_name : " << s_name << endl;
-//    cout << "Port: " << ntohl(port) << endl;
-//    cout << "Key: " << key << endl;
+    cout << "Name: " << f_name << endl;
+    cout << "S_name : " << s_name << endl;
+    cout << "Port: " << ntohl(port) << endl;
+    cout << "Key: " << key << endl;
 
-
-    return 0;
+    int ret_update = binder_db.update_db(f_name, s_name, ntohl(port), key);
+    return send_register_response(socket,ret_update);
 }
 
 int Binder::handle_request(int socket, int type) {
     int m_len=0;
     int recv_length = recv(socket,&(m_len),4,0);
     if (recv_length <0) {
-        return ERR_RECV_FAIL;
+        return ERR_BINDER_RECV_FAIL;
     }
 
     switch(type){
         case REGISTER:
             int rec_reg_req = receive_register_request(socket, ntohl(m_len));
             if (rec_reg_req != 0) {
-                return ERR_RECV_FAIL;
+                return ERR_BINDER_RECV_FAIL;
             }
             return 0;
 
@@ -78,9 +86,11 @@ int Binder::init() {
         perror("socket connect fail");
     }
 
+
     binderPort = port;
     binderAddr = addr;
     print_status();
+
 
     fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()

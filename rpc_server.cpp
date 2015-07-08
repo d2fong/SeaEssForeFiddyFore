@@ -16,7 +16,7 @@
 using namespace std;
 
 Server s;
-
+ServerDB server_db;
 
 /**
  * Creates connection socket to service clients. Also opens a connection with the binder
@@ -46,9 +46,8 @@ int rpcInit() {
         return ERR_BINDER_CONNECT_FAIL;
     }
 
-    cout << "Host " << ret_host << endl;
     s = Server(string(ret_host), ret_port, client_socket,binder_socket);
-
+    server_db = ServerDB();
     cout << "Connected to binder" << endl;
     return 0;
 }
@@ -59,50 +58,32 @@ int rpcInit() {
  * */
 int rpcRegister(char* name, int* argTypes, skeleton f) {
 
-
+    string flag;
     int arg_length = 0;
     while (argTypes[arg_length++]);
 
     Function func = Function(string(name), argTypes, arg_length-1);
 
-    cout << "Got to beginning of rpcRegister" << endl;
+    cout << "Got to beginning of rpcRegister.." << endl;
     RegisterMessage reg_msg = s.create_register_message(func);
-    cout << "Binder Register Message generated" << endl;
+    cout << "Binder Register Message generated.." << endl;
 
     int m_send = s.send_register_request(reg_msg, s.get_binder_socket());
     if (m_send == -1) {
+        return REGISTER_FAILURE;
+    }
+    cout << "Message to binder is sent" << endl;
+
+    int m_recv = recv(s.get_binder_socket(),&flag,4,0);
+    if (atoi(flag.c_str()) == REGISTER_FAILURE) {
         return ERR_REG_FAIL;
     }
-//
-//    int m_recv = recv_message(BINDER_FD, &response);
-//    if (response.type == REGISTER_FAILURE) {
-//        return ERR_REG_FAIL;
-//    }
-//    else if(response.type == REGISTER_WARNING) {
-//        return REGISTER_WARNING;
-//    }
-//    else {
-//        return 0;
-////        return update_local_db(func, f);
-//    }
-    return 0;
+    else {
+        return server_db.update_db(atoi(flag.c_str()),func,f);
+    }
 }
 
-//
-//int update_local_db(func_info *func, skeleton f) {
-//
-//    cout << func->key << endl;
-//    if (func_db.find(func->key) == func_db.end()) {
-//        func_db.insert(map<string, skeleton>::value_type(func->key, f));
-//    }
-//    else {
-//        func_db[func->key]= f;
-//    }
-//
-//    free(func->args);
-//    free(func);
-//    return 0;
-//}
+
 
 int rpcExecute() {
     //TODO
