@@ -7,6 +7,7 @@
 #include "helpers.h"
 #include "Message.h"
 #include "error.h"
+#include "DB.h"
 
 #include <iostream>
 #include <map>
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 
 
-using namespace std;
+using namespace std
 
 int Binder::receive_register_request (int socket, int length) {
     int port;
@@ -65,8 +66,14 @@ int Binder::handle_request(int socket, int type) {
             }
             return 0;
         case LOCATION_REQUEST:
-            int result = receive_location_request()
+            int rec_loc_req = receive_location_request(socket);
+            if (rec_loc_req != 0) {
+                return rec_loc_req;
+            }
+            return 0;
 
+        default:
+            return -1;
     }
     return 0;
 }
@@ -175,4 +182,32 @@ void Binder::print_status() {
     cout << "BINDER_ADDRESS " <<  binderAddr << endl;
     cout << "BINDER_PORT " << binderPort << endl;
 
+}
+
+
+int Binder::receive_location_request(int socket) {
+    int result = 0;
+    int funcNameLength = 0;
+    int actual = 4;
+    result += recv_all(socket, (char*)&funcNameLength, &actual);
+    funcNameLength = ntohl(funcNameLength);
+    cout << funcNameLength << endl;
+
+    char funcNameBuffer[funcNameLength+];
+    actual = funcNameLength;
+    result += recv_all(socket, funcNameBuffer, &actual);
+    cout << funcNameBuffer << endl;
+
+    int argsLength = 0;
+    actual = 4;
+    result += recv_all(socket, (char*)&argsLength, &actual);
+    argsLength = ntohl(argsLength);
+    cout << argsLength << endl;
+
+    char argsTypeBuffer[argsLength];
+    actual = argsLength;
+    result += recv_all(socket, (char*)&argsTypeBuffer, &actual);
+    cout << argsTypeBuffer << endl;
+
+    return 0;
 }
