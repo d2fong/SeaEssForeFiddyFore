@@ -10,7 +10,9 @@
 
 #include "rpc.h"
 #include "Client.h"
-
+#include "error.h"
+#include "constants.h"
+#include <sys/socket.h>
 #include <iostream>
 #include <stdlib.h>
 
@@ -21,13 +23,17 @@ int rpcCall(char* name, int* argTypes, void** args) {
     char* binderAddr = getenv("BINDER_ADDRESS");
     char* binderPort = getenv("BINDER_PORT");
 
+    cout << "Init rpc call" << endl;
+
     //Connect to the binder
     int connectionResult = c.connect_to_something(binderAddr, binderPort);
     if (connectionResult < 0) {
-	    cout << "error: rpc_client couldn't connect to binder" << endl;
+        cout << "error: rpc_client couldn't connect to binder" << endl;
         return connectionResult;
     }
 
+
+    cout << "Connected to binder" << endl;
     //Create a message and serialize name and argTypes into a buffer
     LocationRequestMessage locMsg = c.create_location_request(name, argTypes);
     int messageResult = c.send_location_request(locMsg, c.get_binder_socket());
@@ -35,8 +41,38 @@ int rpcCall(char* name, int* argTypes, void** args) {
         cout << "error: rpc_client couldn't send the message correctly" << endl;
         return messageResult;
     }
-    int locRsp = c.receive_location_response();
-//
+
+    int msg_type;
+    int reason_code = 0;
+    int res = recv(c.get_binder_socket(),&msg_type,4,0);
+    if (res == -1) {
+        return ERR_BINDER_RECV_FAIL;
+    }
+    msg_type = ntohl(msg_type);
+    if (msg_type == LOCAITON_FAILURE) {
+        cout << "Location failure" << endl;
+        res = recv(c.get_binder_socket(),&reason_code,4,0);
+        if (res == -1) {
+            return ntohl(reason_code);
+        }
+    }
+    else if (msg_type == LOCATION_SUCCESS){
+        cout << "Location success" << endl;
+        char buff [MAXHOSTNAME + 1 + 4];
+        char s_name [MAXHOSTNAME +1];
+        int port =0;
+        res = recv(c.get_binder_socket(),buff,MAXHOSTNAME+1+4,0);
+        memcpy (s_name, buff, MAXHOSTNAME+1);
+        memcpy (&port, buff+MAXHOSTNAME+1, 4);
+        s_name[MAXHOSTNAME]= '\0';
+        port = ntohl(port);
+        cout << "server" << s_name << endl;
+        cout << "port" << port << endl;
+    } else {
+        cout << "received neither location failure or location success" << endl;
+    }
+
+
 //    if (locRsp.messageType == LOCATION_FAILURE) {
 //        return -1;
 //    } else if(locRsp.messageType == LOCATION_SUCCESS) {

@@ -5,12 +5,9 @@
 #ifndef CS4544REEAL_BINDER_H
 #define CS4544REEAL_BINDER_H
 
-<<<<<<< HEAD
 #include "Message.h"
-=======
 #include <string>
 using namespace std;
->>>>>>> 393342b0a6d87769ed1d1a10f6d3803238d2e9db
 
 
 class Binder {
@@ -27,21 +24,14 @@ public:
     int init();
     int receive_register_request(int socket, int length);
     int send_register_response(int socket, int flag);
+    int send_location_response(int socket, string key);
 
-    //Protocol
-
-    //Location Request
-    int send_location_success_response(LocationSuccessMessage m);
-    int send_location_failure_response(LocationFailureMessage m);
-
-    int receive_location_request(int socket);
+    int receive_location_request(int socket, int length);
 
     LocationSuccessMessage create_location_success_message(char* serverAddr, char* serverPort);
     LocationFailureMessage create_location_failure_message(int reasonCode);
 
 
-
-    int receive_register_request(int socket, int length);
 
 };
 

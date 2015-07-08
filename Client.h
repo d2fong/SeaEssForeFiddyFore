@@ -7,7 +7,9 @@
 
 
 #include "Message.h"
-
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <string>
 
 using namespace std;
@@ -19,13 +21,12 @@ private:
 
 public:
     Client() { }
-    Client(int binderSocket) : binderSocket(binderSocket) { }
+    Client(int binderSocket) : binderSocket(binderSocket) {}
 
     Client(int binderSocket, int serverSocket) : binderSocket(binderSocket), serverSocket(serverSocket) {}
 
     int get_binder_socket();
     int get_server_socket();
-
 
     //Connect to a server/binder given the addr and port
     int connect_to_something(char* addr, char* port);

@@ -32,7 +32,7 @@ int Client::connect_to_something(char *addr, char *port) {
     int s;
     int connectionResult;
 
-    // first, load up address structs with getaddrinfo():
+// first, load up address structs with getaddrinfo():
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -43,7 +43,7 @@ int Client::connect_to_something(char *addr, char *port) {
     s = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
     if (s < 0) {
-	cout << "error: socket failure" << endl;
+        cout << "error: socket failure" << endl;
         return s;
     }
 
@@ -58,6 +58,7 @@ int Client::connect_to_something(char *addr, char *port) {
     // set the binder socket to be the sockfd
     binderSocket = s;
 
+
     return 0;
 
 }
@@ -65,14 +66,19 @@ int Client::connect_to_something(char *addr, char *port) {
 LocationRequestMessage Client::create_location_request(char* funcName, int* argTypes) {
 
     int funcNameLength = (strlen(funcName) + 1) * sizeof(char);
-    int argTypesLength = get_int_array_length(argTypes) * sizeof(int);
+    int arg_length=0;
+    while (argTypes[arg_length++]);
+
+
+//    int argTypesLength = get_int_array_length(argTypes);
+    int argTypesLength = arg_length-1;
 
     //Encode the funcname and argTypes into the buffer
     if (funcNameLength > MAXFUNCNAME) {
         funcNameLength = MAXFUNCNAME;
     }
     char* funcNameBuf = new char[funcNameLength];
-    char* argTypesBuf = new char[argTypesLength];
+    int* argTypesBuf = new int[argTypesLength];
 
     memcpy(funcNameBuf, funcName, funcNameLength);
     memcpy(argTypesBuf, argTypes, argTypesLength);
@@ -86,42 +92,27 @@ LocationRequestMessage Client::create_location_request(char* funcName, int* argT
 //Send the location request message
 int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
 
-    Function func = Function(string(m.getFuncNameBuffer()), (int*) m.getArgTypesBuffer(),m.getArgTypesLength());
-    string f = func.get_key();
+    Function func = Function(string(m.getFuncNameBuffer()), m.getArgTypesBuffer(),m.getArgTypesLength());
 
-    char buf[f.size()];
-    strncpy(buf, f.c_str(), f.size());
-    buf[f.size()] = '\0';
-    cout << f << endl;
-    cout << "buf is " << buf << endl;
+    int key_size = func.get_key().length() + 1;
+    cout << "KEY SIZE" << key_size << endl;
+    int cbf_length = key_size;
+    int ibf_length = 8;
 
-    int result = 0;
-    //First send the message type to the binder
-    int type = htonl(m.getType());
-    int intSize = 4;
-    int expected = 4;
-    result += send_all(binderSocket, (char*)&type, &expected);
-    if (expected != intSize) {
-        return -1;
-    }
+    int m_length =  key_size;
+    int b_length = htonl(m_length);
+    int b_type = htonl(m.getType());
 
-    int fKeySize = htonl(f.size());
-    expected = f.size();
-    result += send_all(binderSocket, (char*)&fKeySize, &expected);
-    if (expected != f.size()) {
-        return -1;
-    }
+    char *buffer= new char[cbf_length+ibf_length];
 
-    int numSent = f.size();
-    result += send_all(binderSocket, buf, &numSent);
-    if (numSent != f.size()) {
-	    cout << "Bytes expected: "<< f.size() << endl;
-        cout << "Bytes acutal: " << numSent << endl;
-    }
-    
-    delete m.getArgTypesBuffer();
-    delete m.getFuncNameBuffer();
-    return result;
+    memcpy(buffer,&b_type, 4); // Copy Type
+    memcpy(buffer+4,&b_length, 4); // Copy Length
+    memcpy(buffer+8, func.get_key().c_str(),key_size); //Key
+
+    cout << "A" << func.get_key().c_str() << endl;
+
+    int byte_length = cbf_length+ ibf_length;
+    return send_all(binderSocket, buffer, &byte_length);
 }
 
 
@@ -133,20 +124,6 @@ Message Client::create_execute_request(char* func_name, int* argTypes, void** ar
 
 
 
-//Send the execute request message
-int send_execute_request(Message m) {
-    return 0;
-}
-
-//Receive the location response message
-Message receive_location_response() {
-    return Message();
-}
-
-//Receive the execute response message
-Message receive_execute_response() {
-    return Message();
-}
 
 
 

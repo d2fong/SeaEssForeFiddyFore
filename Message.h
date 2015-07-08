@@ -50,11 +50,11 @@ private:
     int funcNameLength;
     int argTypesLength;
     char* funcNameBuffer;
-    char* argTypesBuffer;
+    int* argTypesBuffer;
 
 public:
 
-    LocationRequestMessage(int funcNameLength, int argTypesLength, char *funcNameBuffer, char *argTypesBuffer)
+    LocationRequestMessage(int funcNameLength, int argTypesLength, char *funcNameBuffer, int *argTypesBuffer)
             : funcNameLength(funcNameLength), argTypesLength(argTypesLength), funcNameBuffer(funcNameBuffer),
               argTypesBuffer(argTypesBuffer) {}
 
@@ -83,11 +83,11 @@ public:
         LocationRequestMessage::funcNameBuffer = funcNameBuffer;
     }
 
-    char *getArgTypesBuffer() const {
+    int *getArgTypesBuffer() const {
         return argTypesBuffer;
     }
 
-    void setArgTypesBuffer(char *argTypesBuffer) {
+    void setArgTypesBuffer(int *argTypesBuffer) {
         LocationRequestMessage::argTypesBuffer = argTypesBuffer;
     }
 };
