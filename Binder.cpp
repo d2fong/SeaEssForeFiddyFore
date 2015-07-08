@@ -56,6 +56,7 @@ int Binder::handle_request(int socket, int type) {
     int m_len = 0;
 
     int retVal = 0;
+    cout << type << endl;
     switch(type){
 //        case REGISTER:
 //            int m_len=0;
@@ -190,14 +191,25 @@ int Binder::receive_location_request(int socket) {
     int funcKeyLength = 0;
     int actual = 4;
     result += recv_all(socket, (char*)&funcKeyLength, &actual);
+    if (result == -1) {
+        cout << "Error receiving location request " << endl;
+	return -1;
+    }
+    if (actual =! funcKeyLength) {
+	cout << "Expected Bytes: " << funcKeyLength << endl;
+        cout << "Actual Bytes:  "  << actual << endl;
+	return -1;
+    }
     funcKeyLength = ntohl(funcKeyLength);
-    cout << funcKeyLength << endl;
+    cout << "funcKeLength is " << funcKeyLength << endl;
 
     char funcKey[funcKeyLength];
-    funcKey[funcKeyLength] = '\0';
+    char buf[funcKeyLength];
     actual = funcKeyLength;
-    result += recv_all(socket, funcKey, &actual);
-    cout << funcKey << endl;
+    result += recv_all(socket, buf, &actual);
 
+    memcpy(funcKey, buf, funcKeyLength);
+    funcKey[funcKeyLength] = '\0';
+    cout << "funckey is " << funcKey << endl;
     return result;
 }

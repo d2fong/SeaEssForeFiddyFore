@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
+#include <string>
 
 using namespace std;
 
@@ -89,8 +90,9 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     string f = func.get_key();
 
     char buf[f.size()];
-    memcpy(buf, &f, f.size());
-
+    strncpy(buf, f.c_str(), f.size());
+    buf[f.size()] = '\0';
+    cout << f << endl;
     cout << "buf is " << buf << endl;
 
     int result = 0;
@@ -112,6 +114,10 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
 
     int numSent = f.size();
     result += send_all(binderSocket, buf, &numSent);
+    if (numSent != f.size()) {
+	cout << "Bytes expected: "<< f.size() << endl;
+        cout << "Bytes acutal: " << numSent << endl;
+    }
     
     delete m.getArgTypesBuffer();
     delete m.getFuncNameBuffer();

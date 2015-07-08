@@ -57,6 +57,7 @@ int send_all(int socket, char* buf, int* bytesToSend) {
     while(total < *bytesToReceive) {
         n = recv(socket, buf+total,bytesLeft, 0);
         if (n == -1) { break; }
+ 	if (n == 0) { n = -1; break; }
         total += n;
         bytesLeft -= n;
     }

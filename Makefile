@@ -1,6 +1,6 @@
 
 client: Client.cpp rpc_client.cpp client1.c helpers.cpp
-	g++ Client.cpp rpc_client.cpp client1.c helpers.cpp -o client
+	g++ Client.cpp rpc_client.cpp client1.c helpers.cpp DB.cpp -o client
 
 binder: Binder.cpp binder_main.cpp
 	g++ Binder.cpp binder_main.cpp helpers.cpp -o binder
