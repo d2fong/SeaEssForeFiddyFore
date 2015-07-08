@@ -115,7 +115,7 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     int numSent = f.size();
     result += send_all(binderSocket, buf, &numSent);
     if (numSent != f.size()) {
-	cout << "Bytes expected: "<< f.size() << endl;
+	    cout << "Bytes expected: "<< f.size() << endl;
         cout << "Bytes acutal: " << numSent << endl;
     }
     

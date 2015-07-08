@@ -15,13 +15,11 @@
 #include <stdlib.h>
 
 using namespace std;
-Client c;
+Client c = Client();
 
 int rpcCall(char* name, int* argTypes, void** args) {
     char* binderAddr = getenv("BINDER_ADDRESS");
     char* binderPort = getenv("BINDER_PORT");
-
-    c = Client();
 
     //Connect to the binder
     int connectionResult = c.connect_to_something(binderAddr, binderPort);
@@ -37,7 +35,7 @@ int rpcCall(char* name, int* argTypes, void** args) {
         cout << "error: rpc_client couldn't send the message correctly" << endl;
         return messageResult;
     }
-//    Message locRsp = c.receive_location_response();
+    int locRsp = c.receive_location_response();
 //
 //    if (locRsp.messageType == LOCATION_FAILURE) {
 //        return -1;
