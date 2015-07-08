@@ -9,6 +9,10 @@
 #include <sys/select.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 
 using namespace std;
 
@@ -42,6 +46,8 @@ int Binder::receive_register_request (int socket, int length) {
     memcpy (f_name, buff+MAXHOSTNAME+1+4, MAXFUNCNAME+1);
     memcpy (key, buff+MAXHOSTNAME + 1 + MAXFUNCNAME + 1 + 4, key_size);
     key[key_size] ='\0';
+    s_name[MAXHOSTNAME]= '\0';
+    f_name[MAXFUNCNAME]= '\0';
 
     cout << "Name: " << f_name << endl;
     cout << "S_name : " << s_name << endl;
