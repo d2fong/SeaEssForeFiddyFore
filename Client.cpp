@@ -91,6 +91,7 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     char buf[f.size()];
     memcpy(buf, &f, f.size());
 
+    cout << "buf is " << buf << endl;
 
     int result = 0;
     //First send the message type to the binder
@@ -104,7 +105,7 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
 
     int fKeySize = htonl(f.size());
     expected = f.size();
-    result += send_all(binderSocket, (char*)fKeySize, &expected);
+    result += send_all(binderSocket, (char*)&fKeySize, &expected);
     if (expected != f.size()) {
         return -1;
     }
