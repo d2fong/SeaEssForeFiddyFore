@@ -53,29 +53,29 @@ int Binder::receive_register_request (int socket, int length) {
 
 int Binder::handle_request(int socket, int type) {
 
-    switch(type){
-        case REGISTER:
-            int m_len=0;
-            int recv_length = recv(socket,&(m_len),4,0);
-            if (recv_length <0) {
-                return ERR_RECV_FAIL;
-            }
-            int rec_reg_req = receive_register_request(socket, ntohl(m_len));
-            if (rec_reg_req != 0) {
-                return ERR_RECV_FAIL;
-            }
-            return 0;
-        case LOCATION_REQUEST:
-            int rec_loc_req = receive_location_request(socket);
-            if (rec_loc_req != 0) {
-                return rec_loc_req;
-            }
-            return 0;
+    int m_len = 0;
 
+    int retVal = 0;
+    switch(type){
+//        case REGISTER:
+//            int m_len=0;
+//            int recv_length = recv(socket,&(m_len),4,0);
+//            if (recv_length <0) {
+//                return ERR_RECV_FAIL;
+//            }
+//            int rec_reg_req = receive_register_request(socket, ntohl(m_len));
+//            if (rec_reg_req != 0) {
+//                return ERR_RECV_FAIL;
+//            }
+//            return 0;
+        case LOCATION_REQUEST:
+            retVal = receive_location_request(socket);
+            break;
         default:
-            return -1;
+            retVal = -1;
+            break;
     }
-    return 0;
+    return retVal;
 }
 
 int Binder::init() {
@@ -193,7 +193,7 @@ int Binder::receive_location_request(int socket) {
     funcNameLength = ntohl(funcNameLength);
     cout << funcNameLength << endl;
 
-    char funcNameBuffer[funcNameLength+];
+    char funcNameBuffer[funcNameLength];
     actual = funcNameLength;
     result += recv_all(socket, funcNameBuffer, &actual);
     cout << funcNameBuffer << endl;
