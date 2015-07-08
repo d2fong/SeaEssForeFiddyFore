@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 
-using namespace std
+using namespace std;
 
 int Binder::receive_register_request (int socket, int length) {
     int port;
@@ -187,14 +187,14 @@ void Binder::print_status() {
 
 int Binder::receive_location_request(int socket) {
     int result = 0;
-    int funcNameLength = 0;
+    int funcKeyLength = 0;
     int actual = 4;
-    result += recv_all(socket, (char*)&funcNameLength, &actual);
-    funcNameLength = ntohl(funcNameLength);
-    cout << funcNameLength << endl;
+    result += recv_all(socket, (char*)&funcKeyLength, &actual);
+    funcKeyLength = ntohl(funcNameLength);
+    cout << funcKeyLength << endl;
 
-    char funcKey[funcNameLength];
-    actual = funcNameLength;
+    char funcKey[funcKeyLength];
+    actual = funcKeyLength;
     result += recv_all(socket, funcKey, &actual);
     cout << funcKey << endl;
 
