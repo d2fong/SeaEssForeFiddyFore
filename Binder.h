@@ -5,7 +5,12 @@
 #ifndef CS4544REEAL_BINDER_H
 #define CS4544REEAL_BINDER_H
 
+<<<<<<< HEAD
 #include "Message.h"
+=======
+#include <string>
+using namespace std;
+>>>>>>> 393342b0a6d87769ed1d1a10f6d3803238d2e9db
 
 
 class Binder {
@@ -14,13 +19,14 @@ private:
     char* binderAddr;
     void print_status();
     int handle_request(int socket, int type);
-
 public:
 
     Binder() {
     }
 
     int init();
+    int receive_register_request(int socket, int length);
+    int send_register_response(int socket, int flag);
 
     //Protocol
 
@@ -35,16 +41,7 @@ public:
 
 
 
-
-//    Message create_register_response_message(MessageType, int status);
-//
-//    void send_register_response(Message m);
-//    void send_location_response(Message m);
-//
-//
-//    Message receive_terminate_request();
-      int receive_register_request(int socket, int length);
-
+    int receive_register_request(int socket, int length);
 
 };
 

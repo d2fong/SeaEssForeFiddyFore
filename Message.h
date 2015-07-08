@@ -1,7 +1,7 @@
 #ifndef CS4544REEAL_MESSAGE_H
 #define CS4544REEAL_MESSAGE_H
 
-
+#include <string>
 #include "DB.h"
 using namespace std;
 
@@ -10,16 +10,18 @@ using namespace std;
 const int    REGISTER = 1;
 const int    REGISTER_SUCCESS = 2;
 const int    REGISTER_FAILURE = 3;
+const int    REGISTER_WARNING = 4;
 
-const int    LOCATION_REQUEST = 4;
-const int    LOCATION_SUCCESS = 5;
-const int    LOCAITON_FAILURE = 6;
+const int    LOCATION_REQUEST = 5;
+const int    LOCATION_SUCCESS = 6;
+const int    LOCAITON_FAILURE = 7;
 
-const int    EXECUTE = 7;
-const int    EXECUTE_SUCCESS = 8;
-const int    EXECUTE_FAILURE = 9;
+const int    EXECUTE = 8;
+const int    EXECUTE_SUCCESS = 9;
+const int    EXECUTE_FAILURE = 10;
 
-const int    TERMINATE = 10;
+const int    TERMINATE = 11;
+
 
 //Reason Codes
 //TODO

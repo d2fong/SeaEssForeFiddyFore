@@ -7,9 +7,6 @@
 #include <netinet/in.h>
 #include <string.h>
 
-
-
-
 using namespace std;
 
 int Server::get_binder_socket() {
@@ -47,18 +44,18 @@ RegisterMessage Server::create_register_message(Function f) {
 
     memcpy(buffer,&b_type, 4); // Copy Type
     memcpy(buffer+4,&b_length, 4); // Copy Length
-    memcpy(buffer+8, &host, MAXHOSTNAME+1); //Server name
+    memcpy(buffer+8, host.c_str(), MAXHOSTNAME+1); //Server name
     memcpy(buffer+8+MAXHOSTNAME+1, &b_port, 4);
     memcpy(buffer+12+MAXHOSTNAME+1, f.get_name().c_str() ,MAXFUNCNAME +1);
     memcpy(buffer+12+MAXHOSTNAME+1+MAXFUNCNAME+1, f.get_key().c_str(), key_size);
 
     ret.set_register_message(host,port,f,buffer,cbf_length+ibf_length);
 
-//    cout << "Name: " << f.get_name() << endl;
-//    cout << "S_name : " << host << endl;
-//    cout << "Port: " << port << endl;
-//    cout << "Key: " << f.get_key() << endl;
-//    cout << "Key Size: " << key_size << endl;
+    cout << "Name: " << f.get_name() << endl;
+    cout << "S_name : " << host << endl;
+    cout << "Port: " << port << endl;
+    cout << "Key: " << f.get_key() << endl;
+    cout << "Key Size: " << key_size << endl;
 
     return ret;
 }

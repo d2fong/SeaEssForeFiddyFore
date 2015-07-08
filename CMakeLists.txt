@@ -13,5 +13,5 @@ set(SOURCE_FILES
     binder_main.cpp)
 
 #add_executable(cs4544Reeal ${SOURCE_FILES})
-add_executable(binder binder_main.cpp Binder.cpp helpers.cpp Message.cpp)
+add_executable(binder binder_main.cpp Binder.cpp helpers.cpp Message.cpp DB.cpp)
 

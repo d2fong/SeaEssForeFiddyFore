@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -15,6 +16,7 @@ int send_all(int socket, char* buf, int* bytesToSend);
 int recv_all(int socket, char* buf, int* bytesToReceive);
 int create_connection_socket(unsigned short portnum, unsigned short* ret_port, char* ret_host);
 int connect_to(char* addr, char* port);
+void split(vector<string> &tokens, const string &text, char sep);
 
 string to_stri(int i);
 
