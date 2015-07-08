@@ -190,10 +190,11 @@ int Binder::receive_location_request(int socket) {
     int funcKeyLength = 0;
     int actual = 4;
     result += recv_all(socket, (char*)&funcKeyLength, &actual);
-    funcKeyLength = ntohl(funcNameLength);
+    funcKeyLength = ntohl(funcKeyLength);
     cout << funcKeyLength << endl;
 
     char funcKey[funcKeyLength];
+    funcKey[funcKeyLength] = '\0';
     actual = funcKeyLength;
     result += recv_all(socket, funcKey, &actual);
     cout << funcKey << endl;

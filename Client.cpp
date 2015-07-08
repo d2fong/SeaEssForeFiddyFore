@@ -85,8 +85,8 @@ LocationRequestMessage Client::create_location_request(char* funcName, int* argT
 //Send the location request message
 int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
 
-    Function f = Function(string(m.getFuncNameBuffer()), (int*) m.getArgTypesBuffer(),m.getArgTypesLength());
-    string f = f.getKey();
+    Function func = Function(string(m.getFuncNameBuffer()), (int*) m.getArgTypesBuffer(),m.getArgTypesLength());
+    string f = func.getKey();
 
     char buf[f.size()];
     memcpy(buf, &f, f.size(), 0);
@@ -104,13 +104,13 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
 
     int fKeySize = htonl(f.size());
     int expected = f.size();
-    result += send_all(binderSocket, (char*)fKeySize, expected);
+    result += send_all(binderSocket, (char*)fKeySize, &expected);
     if (expected != f.size()) {
         return -1;
     }
 
     int numSent = f.size();
-    result += send_all(binderSocket, buf, numSent);
+    result += send_all(binderSocket, buf, &numSent);
     
     delete m.getArgTypesBuffer();
     delete m.getFuncNameBuffer();
