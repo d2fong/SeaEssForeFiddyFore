@@ -1,21 +1,53 @@
-//
-// Created by Shayan Masood on 15-07-07.
-//
-
 #include "DB.h"
 #include "constants.h"
 #include "helpers.h"
 #include <iostream>
 #include <string>
 #include <string.h>
+#include "Message.h"
 
 using namespace std;
 
+int ServerDB::update_db(int flag, Function func, skeleton f) {
+    cout << "Updating db: Flag: " << flag << endl;
+    if (flag == REGISTER_WARNING){
+        lookup[func.get_key()] =f;
+    }
+    else {
+        // Register Success
+        lookup.insert(map<string, skeleton>::value_type(func.get_key(), f));
+        functions.insert(map<string, Function>::value_type(func.get_key(),func));
+    }
+    return 0;
+}
+
+
+int BinderDB::update_db(string f_name, string s_name, int port, string key) {
+    ServerInfo s = ServerInfo(s_name,port);
+    vector<ServerInfo> servers;
+    if (lookup.find(key) == lookup.end()) {
+        vector <ServerInfo> s_info;
+        s_info.push_back(s);
+        lookup.insert(map<string, vector<ServerInfo> >::value_type(key, s_info));
+    }
+    else {
+        servers = lookup[key];
+        for(vector<ServerInfo>::size_type i = 0; i != servers.size(); i++) {
+            if (!(servers[i].host == s_name && servers[i].port == port)) {
+                lookup[key].push_back(s);
+            }
+            else {
+                return REGISTER_WARNING;
+            }
+        }
+    }
+    return REGISTER_SUCCESS;
+
+}
+
 /**
- * Args Helpers
+ * Args
  */
-
-
 int Args::get_input() {
     return input;
 }
@@ -59,10 +91,6 @@ string Args::get_args_key() {
 
 
 
-/**
- * Function Helpers
- */
-
 void Function::gen_args() {
     for (int i =0; i< arg_length; i++) {
         Args a = Args(arg_types[i]);
@@ -97,3 +125,6 @@ string Function::get_key() {
 vector <Args> Function::get_args() {
     return args;
 }
+
+
+

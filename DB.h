@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <map>
+#include "helpers.h"
+#include "rpc.h"
 
 using namespace std;
 
-
-class DB {
-};
 
 class Args {
 private:
@@ -57,5 +57,27 @@ public:
     vector <Args> get_args();
 };
 
+
+class ServerInfo {
+public:
+    string host;
+    int port;
+    ServerInfo(){}
+    ServerInfo(string host, int port) : host(host), port(port){}
+};
+
+class BinderDB {
+public:
+    map<string, vector<ServerInfo> > lookup;
+    BinderDB() {}
+    int update_db(string f_name, string s_name, int port, string key);
+};
+
+class ServerDB {
+public:
+    map<string, skeleton> lookup;
+    map<string, Function> functions;
+    int update_db(int flag,Function func,skeleton f);
+};
 
 #endif //CS4544REEAL_DB_H
