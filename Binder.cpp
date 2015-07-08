@@ -193,21 +193,10 @@ int Binder::receive_location_request(int socket) {
     funcNameLength = ntohl(funcNameLength);
     cout << funcNameLength << endl;
 
-    char funcNameBuffer[funcNameLength];
+    char funcKey[funcNameLength];
     actual = funcNameLength;
-    result += recv_all(socket, funcNameBuffer, &actual);
-    cout << funcNameBuffer << endl;
+    result += recv_all(socket, funcKey, &actual);
+    cout << funcKey << endl;
 
-    int argsLength = 0;
-    actual = 4;
-    result += recv_all(socket, (char*)&argsLength, &actual);
-    argsLength = ntohl(argsLength);
-    cout << argsLength << endl;
-
-    char argsTypeBuffer[argsLength];
-    actual = argsLength;
-    result += recv_all(socket, (char*)&argsTypeBuffer, &actual);
-    cout << argsTypeBuffer << endl;
-
-    return 0;
+    return result;
 }

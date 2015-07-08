@@ -6,7 +6,7 @@
 #include "Client.h"
 #include "helpers.h"
 #include "constants.h"
-
+#include "DB.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -77,13 +77,21 @@ LocationRequestMessage Client::create_location_request(char* funcName, int* argT
     memcpy(argTypesBuf, argTypes, argTypesLength);
 
     LocationRequestMessage ret = LocationRequestMessage(funcNameLength, argTypesLength, funcNameBuf, argTypesBuf);
-    ret.setType(4);
+    ret.setType(LOCATION_REQUEST);
     
     return ret;
 }
 
 //Send the location request message
 int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
+
+    Function f = Function(string(m.getFuncNameBuffer()), (int*) m.getArgTypesBuffer(),m.getArgTypesLength());
+    string f = f.getKey();
+
+    char buf[f.size()];
+    memcpy(buf, &f, f.size(), 0);
+
+
     int result = 0;
     //First send the message type to the binder
     int type = htonl(m.getType());
@@ -94,35 +102,15 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
         return -1;
     }
 
-    //Send the function length
-    int funcLength = htonl(m.getFuncNameLength());
-    int funcLengthExpected = m.getFuncNameLength();
-    result += send_all(binderSocket, (char*)&funcLength, &funcLengthExpected);
-    if (funcLengthExpected != m.getFuncNameLength()) {
+    int fKeySize = htonl(f.size());
+    int expected = f.size();
+    result += send_all(binderSocket, (char*)fKeySize, expected);
+    if (expected != f.size()) {
         return -1;
     }
 
-    //Send the function name buffer
-    int funcNameExpected = m.getFuncNameLength();
-    result += send_all(binderSocket, m.getFuncNameBuffer(), &funcNameExpected);
-    if (funcNameExpected != m.getFuncNameLength()) {
-        return -1;
-    }
-
-    //Send the argTypes length
-    int argsLength = htonl(m.getArgTypesLength());
-    int argsLengthExpected = m.getArgTypesLength();
-    result += send_all(binderSocket, (char*)&argsLength, &argsLengthExpected);
-    if (argsLengthExpected != m.getArgTypesLength()) {
-        return -1;
-    }
-
-    //Send the args buffer
-    int argsBufferExpected = m.getArgTypesLength();
-    result += send_all(binderSocket, m.getArgTypesBuffer(), &argsBufferExpected);
-    if (argsBufferExpected != m.getArgTypesLength()) {
-        return -1;
-    }
+    int numSent = f.size();
+    result += send_all(binderSocket, buf, numSent);
     
     delete m.getArgTypesBuffer();
     delete m.getFuncNameBuffer();
