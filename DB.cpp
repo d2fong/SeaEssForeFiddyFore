@@ -29,6 +29,7 @@ int BinderDB::update_db(string f_name, string s_name, int port, string key) {
         vector <ServerInfo> s_info;
         s_info.push_back(s);
         lookup.insert(map<string, vector<ServerInfo> >::value_type(key, s_info));
+        cout << "DB: adding key" << key << endl;
     }
     else {
         servers = lookup[key];

@@ -226,6 +226,7 @@ int Binder::send_location_response(int socket, string key) {
         if (res == -1) {
             return  ERR_BINDER_SEND_FAIL;
         }
+        return res;
     }
     else {
         //TODO Load balance servers
