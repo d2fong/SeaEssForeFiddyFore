@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 
-using namespace std
+using namespace std;
 
 int Binder::receive_register_request (int socket, int length) {
     int port;
