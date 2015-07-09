@@ -47,7 +47,7 @@ int rpcInit() {
     char *binder_port = getenv("BINDER_PORT");
 
 
-    int binder_socket = connect_to(binder_addr, binder_port);`
+    int binder_socket = connect_to(binder_addr, binder_port);
     if (binder_socket < 0) {
         cout << "Could not connect to binder" << endl;
         return ERR_BINDER_CONNECT_FAIL;
@@ -189,31 +189,44 @@ int handle_request (int socket, int messageType) {
     int rec;
     switch (messageType) {
         case EXECUTE: {
+            int m_length =0;
             int key_len = 0;
             int args_len = 0;
-            rec = recv(socket, &(key_len), 4, 0);
+            int n_key_len=0;
+            int n_args_len=0;
+
+            rec = recv(socket, &(m_length), 4, 0);
             if (rec < 0) {
                 return ERR_SERVER_CLIENT_RECV;
             }
-            key_len = ntohl(key_len);
-            char key[key_len + 1];
-            rec = recv(socket, key, key_len,0);
-            if (rec < 0) {
-                return ERR_SERVER_CLIENT_RECV;
-            }
-            key[key_len] = '\0';
-            rec = recv(socket, &args_len, 4, 0);
-            if (rec < 0) {
-                return ERR_SERVER_CLIENT_RECV;
-            }
-            args_len = ntohl(args_len);
-            char args[args_len + 1];
-            if (rec < 0) {
-                return ERR_SERVER_CLIENT_RECV;
-            }
-            rec = recv(socket, args, args_len,0);
+            int n_len = ntohl(m_length);
+            cout << "N_Length " << n_len << endl;
+
+            char * buff = new char [n_len];
+            rec = recv(socket, buff, n_len,0);
+
+            memcpy (&key_len, buff,4);
+            n_key_len = ntohl(key_len);
+
+            cout << "Key Length " << n_key_len << endl;
+
+            char key[n_key_len+1];
+            memcpy (key, buff+4, n_key_len);
+            key[n_key_len]= '\0';
+
+            cout << "Key " << key << endl;
+
+            memcpy(&args_len, buff+4+n_key_len,4);
+            n_args_len = ntohl(args_len);
+            cout << "Args Length " << n_args_len << endl;
+
+            char args[n_args_len+1];
+            memcpy(args, buff+8+n_key_len, n_args_len);
+            args[n_args_len] ='\0';
+
             cout << "KEY: " << key << endl;
             cout << "ARGS: " << args << endl;
+            cout << "ARG LENGTH" << n_args_len << endl;
             return 0;
         }
         default: {

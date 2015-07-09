@@ -18,6 +18,9 @@
 
 using namespace std;
 
+void Client::set_server_socket(int socket) {
+    serverSocket = socket;
+}
 
 int Client::get_binder_socket() {
     return binderSocket;
@@ -125,26 +128,32 @@ int Client::send_execute_request(int serverSocket, char *name, int *argTypes, vo
     int func_size = func_key.length() + 1;
 
     string dataMarshallingKey = marshall_args(argTypes, args, arg_length);
+    cout << "MARSHALL KEY" << dataMarshallingKey << endl;
+
     int marshallSize = dataMarshallingKey.length() + 1;
+    cout << "MARSHALL SIZE" << marshallSize << endl;
 
     int cbf_length = func_size + marshallSize;
-    int ibf_length = 12;
+    int ibf_length = 16;
 
     int m_length = func_size;
     int b_length = htonl(m_length);
 
     int mars_length = marshallSize;
-    int b_mars_length = htonl(b_mars_length);
+    int b_mars_length = htonl(mars_length);
 
     int b_type = htonl(EXECUTE);
 
     char *buffer = new char[cbf_length + ibf_length];
 
+    int mlen= htonl(cbf_length+ ibf_length-8);
+
     memcpy(buffer, &b_type, 4);
-    memcpy(buffer+4, &b_length, 4);
-    memcpy(buffer+8, func_key.c_str(), func_size);
-    memcpy(buffer+8+func_size, &b_mars_length, 4);
-    memcpy(buffer+12+func_size, dataMarshallingKey.c_str(), mars_length);
+    memcpy(buffer+4,&mlen , 4);
+    memcpy(buffer+8, &b_length, 4);
+    memcpy(buffer+12, func_key.c_str(), func_size);
+    memcpy(buffer+12+func_size, &b_mars_length, 4);
+    memcpy(buffer+16+func_size, dataMarshallingKey.c_str(), mars_length);
 
     cout << "Sending execute message" << endl;
 

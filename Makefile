@@ -1,5 +1,5 @@
 
-client: Client.cpp rpc_client.cpp client1.c helpers.cpp
+client: Client.cpp rpc_client.cpp client1.c helpers.cpp DB.cpp
 	g++ Client.cpp rpc_client.cpp client1.c helpers.cpp DB.cpp -o client
 
 binder: Binder.cpp binder_main.cpp
