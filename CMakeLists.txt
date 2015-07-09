@@ -14,4 +14,5 @@ set(SOURCE_FILES
 
 #add_executable(cs4544Reeal ${SOURCE_FILES})
 add_executable(binder binder_main.cpp Binder.cpp helpers.cpp Message.cpp DB.cpp)
+add_executable(client CLient.cpp rpc_client.cpp helpers.cpp client1.c DB.cpp)
 

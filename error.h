@@ -23,4 +23,6 @@
 #define ERR_INSERT_BINDER_DB -8
 
 
+#define ERR_SERVER_NOT_FOUND -9
+#define ERR_SERVER_CLIENT_RECV -10
 #endif

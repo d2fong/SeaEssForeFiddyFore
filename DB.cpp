@@ -29,6 +29,7 @@ int BinderDB::update_db(string f_name, string s_name, int port, string key) {
         vector <ServerInfo> s_info;
         s_info.push_back(s);
         lookup.insert(map<string, vector<ServerInfo> >::value_type(key, s_info));
+        cout << "DB: adding key" << key << endl;
     }
     else {
         servers = lookup[key];
@@ -73,12 +74,12 @@ void Args::set_arg_types(int arg_type) {
     output = (arg_type >> ARG_OUTPUT) & 0x1;
     type = (arg_type >> 16) & 0xf;
     arr_length= (arg_type & 0xFFFF);
-    if (arr_length == 0) {
-        scalar=1;
-        arr_length=1;
+    if (arr_length != 0) {
+        scalar =0;
     }
     else {
-        scalar=0;
+        scalar=1;
+        arr_length=1;
     }
 }
 

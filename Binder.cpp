@@ -3,6 +3,7 @@
 #include "helpers.h"
 #include "Message.h"
 #include "error.h"
+#include "DB.h"
 
 #include <iostream>
 #include <map>
@@ -49,32 +50,51 @@ int Binder::receive_register_request (int socket, int length) {
     s_name[MAXHOSTNAME]= '\0';
     f_name[MAXFUNCNAME]= '\0';
 
-    cout << "Name: " << f_name << endl;
-    cout << "S_name : " << s_name << endl;
-    cout << "Port: " << ntohl(port) << endl;
-    cout << "Key: " << key << endl;
+//    cout << "Name: " << f_name << endl;
+//    cout << "S_name : " << s_name << endl;
+//    cout << "Port: " << ntohl(port) << endl;
+//    cout << "Key: " << key << endl;
 
     int ret_update = binder_db.update_db(f_name, s_name, ntohl(port), key);
     return send_register_response(socket,ret_update);
 }
 
 int Binder::handle_request(int socket, int type) {
-    int m_len=0;
-    int recv_length = recv(socket,&(m_len),4,0);
-    if (recv_length <0) {
-        return ERR_BINDER_RECV_FAIL;
-    }
+    int m_len = 0;
+    int recv_length = 0;
 
+    int retVal = 0;
     switch(type){
-        case REGISTER:
+        case REGISTER: {
+            m_len = 0;
+            recv_length = recv(socket, &(m_len), 4, 0);
+            if (recv_length < 0) {
+                return ERR_BINDER_RECV_FAIL;
+            }
             int rec_reg_req = receive_register_request(socket, ntohl(m_len));
             if (rec_reg_req != 0) {
                 return ERR_BINDER_RECV_FAIL;
             }
-            return 0;
-
+            break;
+        }
+       case LOCATION_REQUEST: {
+           m_len = 0;
+           recv_length = recv(socket, &(m_len), 4, 0);
+           if (recv_length < 0) {
+               return ERR_BINDER_RECV_FAIL;
+           }
+           retVal = receive_location_request(socket,ntohl(m_len));
+           if (retVal != 0) {
+               //Find the funtion,
+               //Return the server info
+           }
+           break;
+       }
+//        default:
+//            retVal = -1;
+//            break;
     }
-    return 0;
+    return retVal;
 }
 
 int Binder::init() {
@@ -171,7 +191,9 @@ int Binder::init() {
                     }
                     else {
                         int r = handle_request(i,ntohl(messageType));
-
+                        if (r < 0) {
+                            cout << "We errd in Binder" << endl;
+                        }
                     }
                 }
             }
@@ -183,4 +205,65 @@ void Binder::print_status() {
     cout << "BINDER_ADDRESS " <<  binderAddr << endl;
     cout << "BINDER_PORT " << binderPort << endl;
 
+}
+
+
+int Binder::send_location_response(int socket, string key) {
+
+    cout << "GOT HERE WITH KEY" << key << endl;
+    int msg_type;
+    int reason_code;
+    int send_bytes = 4;
+    int res;
+    if (binder_db.lookup.find(key) == binder_db.lookup.end()) {
+        msg_type = htonl(LOCAITON_FAILURE);
+        reason_code =htonl(ERR_SERVER_NOT_FOUND);
+        res =send_all(socket,(char *)&msg_type,&send_bytes);
+        if (res == -1) {
+            return ERR_BINDER_SEND_FAIL;
+        }
+        res = send_all(socket, (char *)&reason_code, &send_bytes);
+        if (res == -1) {
+            return  ERR_BINDER_SEND_FAIL;
+        }
+        return res;
+    }
+    else {
+        //TODO Load balance servers
+        cout << "In else key" << key << endl;
+        ServerInfo s = binder_db.lookup[key][0];
+
+        cout << "Binder:ServerInfo:" << s.host << endl;
+        cout << "Binder:ServerPort:" << s.port << endl;
+
+        msg_type = htonl(LOCATION_SUCCESS);
+        res =send_all(socket,(char *)&msg_type,&send_bytes);
+        if (res == -1) {
+            return ERR_BINDER_SEND_FAIL;
+        }
+        char *buff = new char [MAXHOSTNAME+1 + 4];
+        int buff_len = MAXHOSTNAME+1+4;
+        int port = htonl(s.port);
+        memcpy (buff, s.host.c_str(),MAXHOSTNAME+1);
+        memcpy (buff+MAXHOSTNAME+1, &port, 4);
+        return send_all(socket, buff,&buff_len);
+    }
+}
+
+int Binder::receive_location_request(int socket, int length) {
+
+    int key_size = length;
+    char key [key_size+1];
+
+    char *buff = new char[length];
+    int recv_buff = recv(socket, buff, length, 0);
+    if (recv_buff <0) {
+        return ERR_BINDER_RECV_FAIL;
+    }
+
+    memcpy (key, buff, key_size);
+    key[key_size] ='\0';
+    cout << "Key" << key << endl;
+    cout << "Key size" << key_size << endl;
+    return send_location_response(socket, key);
 }

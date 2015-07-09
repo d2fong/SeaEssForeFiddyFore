@@ -51,11 +51,11 @@ RegisterMessage Server::create_register_message(Function f) {
 
     ret.set_register_message(host,port,f,buffer,cbf_length+ibf_length);
 
-    cout << "Name: " << f.get_name() << endl;
-    cout << "S_name : " << host << endl;
-    cout << "Port: " << port << endl;
-    cout << "Key: " << f.get_key() << endl;
-    cout << "Key Size: " << key_size << endl;
+//    cout << "Name: " << f.get_name() << endl;
+//    cout << "S_name : " << host << endl;
+//    cout << "Port: " << port << endl;
+//    cout << "Key: " << f.get_key() << endl;
+//    cout << "Key Size: " << key_size << endl;
 
     return ret;
 }

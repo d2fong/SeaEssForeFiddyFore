@@ -6,6 +6,7 @@
 using namespace std;
 
 
+
 const int    REGISTER = 1;
 const int    REGISTER_SUCCESS = 2;
 const int    REGISTER_FAILURE = 3;
@@ -20,6 +21,10 @@ const int    EXECUTE_SUCCESS = 9;
 const int    EXECUTE_FAILURE = 10;
 
 const int    TERMINATE = 11;
+
+
+//Reason Codes
+//TODO
 
 
 
@@ -45,11 +50,11 @@ private:
     int funcNameLength;
     int argTypesLength;
     char* funcNameBuffer;
-    char* argTypesBuffer;
+    int* argTypesBuffer;
 
 public:
 
-    LocationRequestMessage(int funcNameLength, int argTypesLength, char *funcNameBuffer, char *argTypesBuffer)
+    LocationRequestMessage(int funcNameLength, int argTypesLength, char *funcNameBuffer, int *argTypesBuffer)
             : funcNameLength(funcNameLength), argTypesLength(argTypesLength), funcNameBuffer(funcNameBuffer),
               argTypesBuffer(argTypesBuffer) {}
 
@@ -78,15 +83,20 @@ public:
         LocationRequestMessage::funcNameBuffer = funcNameBuffer;
     }
 
-    char *getArgTypesBuffer() const {
+    int *getArgTypesBuffer() const {
         return argTypesBuffer;
     }
 
-    void setArgTypesBuffer(char *argTypesBuffer) {
+    void setArgTypesBuffer(int *argTypesBuffer) {
         LocationRequestMessage::argTypesBuffer = argTypesBuffer;
     }
 };
 
+class LocationSuccessMessage: public Message {
+private:
+    char* serverAddr;
+    char* serverPort;
+};
 
 class RegisterMessage : public Message {
 private:
@@ -144,10 +154,37 @@ public:
 };
 
 
+class LocationFailureMessage: public Message {
+private:
+    int reasonCode;
+};
 
-//class MessageContent {
-//
-//};
+class ExecuteMessage: public Message {
+private:
+    int funcNameLength;
+    int argsLength;
+    char* funcNameBuffer;
+    char* argTypesBuffer;
+    char* argsBuffer;
+};
 
+class ExecuteSuccessMessage: public Message {
+private:
+    int funcNameLength;
+    int argsLength;
+    char* funcNameBuffer;
+    char* argTypesBuffer;
+    char* argsBuffer;
+};
+
+class ExecuteFailureMessage: public Message {
+private:
+    int reasonCode;
+};
+
+class TerminateMessage: public Message {
+private:
+    int reasonCode;
+};
 
 #endif //CS4544REEAL_MESSAGE_H
