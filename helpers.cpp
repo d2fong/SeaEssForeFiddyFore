@@ -17,9 +17,121 @@
 
 using namespace std;
 
-int unmarshall_args (int * argTypes, void **args, vector<Args> arg_info) {
 
-    return 0;
+string append_vector_string (vector<string> vec, int from, int to) {
+    string ret="";
+    for(vector<string>::size_type i = from; i != to; i++) {
+        ret += vec[i];
+    }
+    return  ret;
+}
+
+int unmarshall_args (void **args, vector<Args> arg_info, vector<string> marshall) {
+    Args curr_arg;
+    int data,arr_len,offset;
+    for (int i =0; i < arg_info.size(); i++) {
+        curr_arg = arg_info[i];
+        arr_len = curr_arg.get_arr_length();
+        offset = i+arr_len-1;
+        switch (curr_arg.get_type()) {
+            case ARG_CHAR: {
+                if (arr_len==0) {
+                    char *c = new char[sizeof(char)];
+                    memcpy (c,marshall[i].c_str(), sizeof(char));
+                    args[i] = (void *)c;
+                }
+                else {
+                    string str = append_vector_string(marshall,i, offset);
+                    char *arr = new char[sizeof(char)*arr_len];
+                    memcpy (arr,str.c_str(),sizeof(char)*arr_len);
+                    args[i] = (void *)arr;
+                    i = offset;
+                }
+             break;
+            }
+            case ARG_SHORT: {
+                if (arr_len==0) {
+                    short *s = new short[sizeof(short)];
+                    memcpy (s,marshall[i].c_str(), sizeof(short));
+                    args[i] = (void *)s;
+                }
+                else {
+                    string str = append_vector_string(marshall,i, offset);
+                    short *arr = new short[sizeof(short)*arr_len];
+                    memcpy (arr,str.c_str(),sizeof(short)*arr_len);
+                    args[i] = (void *)arr;
+                    i = offset;
+                }
+                break;
+            }
+            case ARG_INT: {
+                if (arr_len==0) {
+                    int *in = new int[sizeof(int)];
+                    memcpy (in,marshall[i].c_str(), sizeof(int));
+                    args[i] = (void *)in;
+                }
+                else {
+                    string str = append_vector_string(marshall,i, offset);
+                    int *arr = new int[sizeof(int)*arr_len];
+                    memcpy (arr,str.c_str(),sizeof(int)*arr_len);
+                    args[i] = (void *)arr;
+                    i = offset;
+                }
+                break;
+            }
+            case ARG_LONG: {
+                if (arr_len==0) {
+                    long *l = new long[sizeof(long)];
+                    memcpy (l,marshall[i].c_str(), sizeof(long));
+                    args[i] = (void *)l;
+                }
+                else {
+                    string str = append_vector_string(marshall,i, offset);
+                    long *arr = new long[sizeof(long)*arr_len];
+                    memcpy (arr,str.c_str(),sizeof(long)*arr_len);
+                    args[i] = (void *)arr;
+                    i = offset;
+                }
+                break;
+            }
+            case ARG_DOUBLE: {
+                if (arr_len==0) {
+                    double *d = new double[sizeof(double)];
+                    memcpy (d,marshall[i].c_str(), sizeof(double));
+                    args[i] = (void *)d;
+                }
+                else {
+                    string str = append_vector_string(marshall,i, offset);
+                    double *arr = new double[sizeof(double)*arr_len];
+                    memcpy (arr,str.c_str(),sizeof(double)*arr_len);
+                    args[i] = (void *)arr;
+                    i = offset;
+                }
+                break;
+            }
+            case ARG_FLOAT: {
+                if (arr_len==0) {
+                    float *f = new float[sizeof(float)];
+                    memcpy (f,marshall[i].c_str(), sizeof(float));
+                    args[i] = (void *)f;
+                }
+                else {
+                    string str = append_vector_string(marshall,i, offset);
+                    float *arr = new float[sizeof(float)*arr_len];
+                    memcpy (arr,str.c_str(),sizeof(float)*arr_len);
+                    args[i] = (void *)arr;
+                    i = offset;
+                }
+                break;
+            }
+            default: {
+                cout << "Unmarshall: Shouldn't be here." << endl;
+                return -1;
+            }
+        }
+    }
+
+   return 0;
 }
 
 string marshall_args (int * argTypes, void **args, int arg_length) {
@@ -34,7 +146,7 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
     for (int i =0; i < arg_length; i++) {
         switch (a[i].get_type()) {
             case ARG_CHAR: {
-                if (a[i].get_scalar() == 1) {
+                if (a[i].get_arr_length()==0) {
                     s << *((char*) (args[i])) << "|";
                 }
                 else {
@@ -45,7 +157,7 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 break;
             }
             case ARG_SHORT: {
-                if (a[i].get_scalar() == 1) {
+                if (a[i].get_arr_length()==0) {
                     s << *((short*) (args[i])) << "|";
                 }
                 else {
@@ -56,7 +168,7 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 break;
             }
             case ARG_INT: {
-                if (a[i].get_scalar() == 1) {
+                if (a[i].get_arr_length()==0) {
                     s << *((int*) (args[i])) << "|";
                 }
                 else {
@@ -67,7 +179,7 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 break;
             }
             case ARG_LONG: {
-                if (a[i].get_scalar() == 1) {
+                if (a[i].get_arr_length()==0) {
                     s << *((long*) (args[i])) << "|";
                 }
                 else {
@@ -78,7 +190,7 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 break;
             }
             case ARG_DOUBLE: {
-                if (a[i].get_scalar() == 1) {
+                if (a[i].get_arr_length()==0) {
                     s << *((double*) (args[i])) << "|";
                 }
                 else {
@@ -89,7 +201,7 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 break;
             }
             case ARG_FLOAT: {
-                if (a[i].get_scalar() == 1) {
+                if (a[i].get_arr_length()==0) {
                     s << *((float*) (args[i])) << "|";
                 }
                 else {
@@ -262,7 +374,7 @@ int calculate_arg_size(vector<Args> arg_info) {
         currArg = arg_info[i];
         switch (type) {
             case ARG_CHAR: {
-                if (currArg.get_scalar()==1) {
+                if (currArg.get_arr_length()==0) {
                     size += 1;
                 }
                 else {
@@ -271,7 +383,7 @@ int calculate_arg_size(vector<Args> arg_info) {
                 break;
             }
             case ARG_SHORT: {
-                if (currArg.get_scalar()==1) {
+                if (currArg.get_arr_length()==0) {
                     size += sizeof(short);
                 }
                 else {
@@ -280,7 +392,7 @@ int calculate_arg_size(vector<Args> arg_info) {
                 break;
             }
             case ARG_INT: {
-                if (currArg.get_scalar()==1) {
+                if (currArg.get_arr_length()==0) {
                     size += sizeof(int);
                 }
                 else {
@@ -289,7 +401,7 @@ int calculate_arg_size(vector<Args> arg_info) {
                 break;
             }
             case ARG_LONG: {
-                if (currArg.get_scalar()==1) {
+                if (currArg.get_arr_length()==0) {
                     size += sizeof(long);
                 }
                 else {
@@ -298,7 +410,7 @@ int calculate_arg_size(vector<Args> arg_info) {
                 break;
             }
             case ARG_DOUBLE: {
-                if (currArg.get_scalar()==1) {
+                if (currArg.get_arr_length()==0) {
                     size += sizeof(double);
                 }
                 else {
@@ -307,7 +419,7 @@ int calculate_arg_size(vector<Args> arg_info) {
                 break;
             }
             case ARG_FLOAT: {
-                if (currArg.get_scalar()==1) {
+                if (currArg.get_arr_length()==0) {
                     size += sizeof(float);
                 }
                 else {

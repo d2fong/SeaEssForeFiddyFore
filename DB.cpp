@@ -65,28 +65,18 @@ int Args::get_arr_length() {
     return arr_length;
 }
 
-int Args::get_scalar() {
-    return scalar;
-}
 
 void Args::set_arg_types(int arg_type) {
     input = (arg_type >> ARG_INPUT) & 0x1;
     output = (arg_type >> ARG_OUTPUT) & 0x1;
     type = (arg_type >> 16) & 0xf;
     arr_length= (arg_type & 0xFFFF);
-    if (arr_length != 0) {
-        scalar =0;
-    }
-    else {
-        scalar=1;
-        arr_length=1;
-    }
 }
 
 string Args::get_args_key() {
     string delimiter = "|";
     string s= to_stri(input) + delimiter + to_stri(output) + delimiter + to_stri(type)
-           + delimiter + to_stri(arr_length) + delimiter + to_stri(scalar);
+           + delimiter + to_stri(arr_length);
     return s;
 }
 
@@ -118,6 +108,10 @@ int Function::get_arg_length() {
     return arg_length;
 };
 
+
+int * Function::get_argtypes() {
+    return arg_types;
+}
 
 string Function::get_key() {
     return key;

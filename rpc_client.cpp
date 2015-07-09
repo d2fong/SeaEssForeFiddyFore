@@ -80,27 +80,15 @@ int rpcCall(char* name, int* argTypes, void** args) {
         }
         c.set_server_socket(s_server);
         int r = c.send_execute_request(c.get_server_socket(), name, argTypes, args);
-//        if (r < 0) {
-//            cout << "error:  Couldnt send
-//        }
-//    } else {
-//        cout << "received neither location failure or location success" << endl;
-//    }
-//
-//
-//    if (locRsp.messageType == LOCATION_FAILURE) {
-//        return -1;
-//    } else if(locRsp.messageType == LOCATION_SUCCESS) {
-//        Message execMsg = c.create_execute_request(name, argTypes, args);
-//        c.send_execute_request(execMsg);
-//        Message execRsp = c.receive_execute_response();
-//
-//        if (execRsp.messageType == EXECUTE_FAILURE) {
-//            return EXECUTE_FAILURE;
-//        } else {
-//            return 0;
-//        }
-//    }
+        if (r < 0) {
+            cout << "error: Sending request failed" << endl;
+        }
+        return c.receive_execute_response();
+
     }
-    return 0;
+    else {
+        cout << "Neither success nor failure?" << endl;
+    }
 }
+
+

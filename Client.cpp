@@ -1,12 +1,8 @@
-//
-// Created by Dylan Fong on 2015-07-05.
-//
-
-
 #include "Client.h"
 #include "helpers.h"
 #include "constants.h"
 #include "DB.h"
+#include "error.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -15,6 +11,7 @@
 #include <netdb.h>
 #include <string.h>
 #include <string>
+
 
 using namespace std;
 
@@ -161,4 +158,25 @@ int Client::send_execute_request(int serverSocket, char *name, int *argTypes, vo
 
     int byte_length = cbf_length + ibf_length;
     return send_all(serverSocket, buffer, &byte_length);
+}
+
+int Client::receive_execute_response() {
+    int ret;
+    int flag;
+    int reason_code;
+    ret = recv(serverSocket, &flag, 4,0);
+    if (ret < 0) {
+        return ERR_RECV_CLIENT;
+    }
+    if (ntohl(flag) == EXECUTE_FAILURE) {
+        ret = recv(serverSocket, &reason_code,4,0);
+        return ntohl(reason_code);
+    }
+    else {
+        //SUCCESS
+        //TODO Need to send argTypes..
+    }
+
+
+
 }

@@ -51,11 +51,11 @@ RegisterMessage Server::create_register_message(Function f) {
 
     ret.set_register_message(host,port,f,buffer,cbf_length+ibf_length);
 
-//    cout << "Name: " << f.get_name() << endl;
-//    cout << "S_name : " << host << endl;
-//    cout << "Port: " << port << endl;
-//    cout << "Key: " << f.get_key() << endl;
-//    cout << "Key Size: " << key_size << endl;
+    cout << "Name: " << f.get_name() << endl;
+    cout << "S_name : " << host << endl;
+    cout << "Port: " << port << endl;
+    cout << "Key: " << f.get_key() << endl;
+    cout << "Key Size: " << key_size << endl;
 
     return ret;
 }
@@ -65,3 +65,30 @@ int Server::send_register_request(RegisterMessage m, int binderSocket) {
     cout << "Buff Length: " << byte_length << endl;
     return send_all(binderSocket,m.getBuff(),&byte_length);
 }
+
+
+int Server::send_execute_response(int* argTypes, void** args, int arg_length, int reason_code) {
+    reason_code= htonl(reason_code);
+    int flag;
+    char *buff= NULL;
+    int byte_length;
+    if (reason_code != 0) {
+        int msg_size = 8;
+        flag = htonl(EXECUTE_FAILURE);
+        buff = new char[msg_size];
+        memcpy (buff, &flag, 4);
+        memcpy (buff+4, &reason_code, 4);
+        send_all(clientSocket, buff,&msg_size);
+    }
+    else {
+        flag = htonl(EXECUTE_SUCCESS);
+        string marshalled_key = marshall_args(argTypes, args,arg_length);
+        buff = new char [marshalled_key.length()+1];
+        memcpy (buff, marshalled_key.c_str(), marshalled_key.length()+1);
+        byte_length= marshalled_key.length() + 1;
+        send_all(clientSocket, buff, &byte_length);
+    }
+    return 0;
+}
+
+

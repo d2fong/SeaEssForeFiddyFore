@@ -26,6 +26,7 @@ ServerDB server_db;
 
 int handle_request (int socket, int messageType);
 int exec_args(string key, string args_s);
+int send_client_msg (int * argTypes, void **args, int arg_length);
 
 /**
  * Creates connection socket to service clients. Also opens a connection with the binder
@@ -45,7 +46,7 @@ int rpcInit() {
 
     //Open connection to binder
 
-   char *binder_addr = getenv("BINDER_ADDRESS");
+    char *binder_addr = getenv("BINDER_ADDRESS");
     char *binder_port = getenv("BINDER_PORT");
 
 
@@ -239,25 +240,41 @@ int handle_request (int socket, int messageType) {
 }
 
 int exec_args(string key, string arg_s) {
+    Function f;
     vector<string> key_s = split(key, '|');
     vector<string> args_s = split(arg_s, '|');
     vector<Args> arg_info;
+    int res=0;
 
     string f_name = key_s[0];
-    int arg_length = key_s[1];
+    int arg_length = stoi(key_s[1]);
 
     int index=2;
     for (int i=0; i < arg_length; i++) {
-        arg_info.push_back(Args(key_s[index],key_s[index+1],key_s[index+2], key_s[index+3],key_s[index+4]));
-        index+=5;
+        arg_info.push_back(Args(stoi(key_s[index]),stoi(key_s[index+1]),stoi(key_s[index+2]), stoi(key_s[index+3])));
+        index+=4;
     }
 
     int arg_size= calculate_arg_size(arg_info);
     void ** args = (void **) malloc(arg_size);
 
+    int unmarshall = unmarshall_args(args, arg_info, args_s);
+    if (unmarshall < 0) {
+        return ERR_UNMARSHALLING_SERVER;
+    }
 
-
-    return 0;
+    if (server_db.functions.find(key) != server_db.functions.end()) {
+        f = server_db.functions[key];
+        skeleton q = server_db.lookup[key];
+        res = (*q)(f.get_argtypes(), args);
+        if (res != 0) {
+            res = ERR_INVALID_ARGS;
+        }
+        return s.send_execute_response(f.get_argtypes(),args,arg_length, res);
+    }
+    else {
+        return ERR_SERVER_DOESNT_CONTAIN_FUNC;
+    }
 }
 
 

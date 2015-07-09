@@ -5,7 +5,6 @@
 #include <vector>
 #include <iostream>
 #include <map>
-#include "helpers.h"
 #include "rpc.h"
 
 using namespace std;
@@ -17,7 +16,6 @@ private:
     int output; // 1 if output
     int type;
     int arr_length;
-    int scalar; //1 if scalar
     void set_arg_types(int arg_type);
 
 public:
@@ -25,14 +23,13 @@ public:
     Args (int arg_type) {
         set_arg_types(arg_type);
     }
-    Args (int input, int output, int type, int arr_length, int scalar) : input(input), output(output), type(type),
-                                                                         arr_length(arr_length), scalar(scalar) {}
+    Args (int input, int output, int type, int arr_length) : input(input), output(output), type(type),
+                                                                         arr_length(arr_length) {}
     int get_input();
     int get_output();
     int get_type();
     int get_type_from_arg_type();
     int get_arr_length();
-    int get_scalar();
     string get_args_key ();
 };
 
@@ -55,6 +52,7 @@ public:
     string get_name();
     int get_arg_length();
     string get_key();
+    int * get_argtypes();
     vector <Args> get_args();
 };
 
