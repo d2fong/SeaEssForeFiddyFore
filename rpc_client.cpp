@@ -73,12 +73,12 @@ int rpcCall(char* name, int* argTypes, void** args) {
         cout << "port" << port << endl;
 
         //connect to the server
-        int s_server = connect_to(s_name, to_stri(port));
+        int s_server = connect_to(s_name, string(to_stri(port));
         if (s_server < 0) {
             cout << "error: could not connect to specified server" << endl;
             return -1;
         }
-        c.set_server_socket(connect_to(s_server);
+        c.set_server_socket(s_server));
         int r = c.send_execute_request(c.get_server_socket(), name, argTypes, args);
 //        if (r < 0) {
 //            cout << "error:  Couldnt send
