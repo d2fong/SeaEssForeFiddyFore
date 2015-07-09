@@ -13,9 +13,12 @@
 #include "error.h"
 #include "constants.h"
 #include <sys/socket.h>
+#include "DB.h"
 #include "helpers.h"
 #include <iostream>
 #include <stdlib.h>
+#include <map>
+
 
 using namespace std;
 Client c = Client();
@@ -44,6 +47,7 @@ int rpcCall(char* name, int* argTypes, void** args) {
         cout << "error: rpc_client couldn't send the message correctly" << endl;
         return messageResult;
     }
+    delete []locMsg.getFuncNameBuffer();
 
     int msg_type;
     int reason_code = 0;
@@ -60,6 +64,7 @@ int rpcCall(char* name, int* argTypes, void** args) {
         }
     }
     else if (msg_type == LOCATION_SUCCESS) {
+
         cout << "Location success" << endl;
         char buff[MAXHOSTNAME + 1 + 4];
         char s_name[MAXHOSTNAME + 1];
@@ -83,11 +88,92 @@ int rpcCall(char* name, int* argTypes, void** args) {
         if (r < 0) {
             cout << "error: Sending request failed" << endl;
         }
-        return c.receive_execute_response();
+//        return c.receive_execute_response(&args);
+        int ret;
+        int flag;
+        int reason_code;
+        ret = recv(c.get_server_socket(), &flag, 4,0);
+        if (ret < 0) {
+            return ERR_RECV_CLIENT;
+        }
+        if (ntohl(flag) == EXECUTE_FAILURE) {
+            ret = recv(c.get_server_socket(), &reason_code,4,0);
+            return ntohl(reason_code);
+        }
+        else {
+            int m_length =0;
+            int mars_len = 0;
+            int key_len = 0;
+            int n_mars_len=0;
+            int n_key_len=0;
 
+            ret = recv(c.get_server_socket(), &(m_length), 4, 0);
+            if (ret < 0) {
+                return ERR_SERVER_CLIENT_RECV;
+            }
+            int n_len = ntohl(m_length);
+            cout << "RECV EXECUTE RESPONSE: len: " << n_len << endl;
+
+            char * buff = new char [n_len];
+            ret = recv(c.get_server_socket(), buff, n_len,0);
+            if (ret < 0) {
+                return ERR_SERVER_CLIENT_RECV;
+            }
+
+            memcpy (&mars_len, buff,4);
+            n_mars_len = ntohl(mars_len);
+
+            cout << "marshall Length " << n_mars_len << endl;
+            memcpy (&key_len, buff+4 ,4);
+
+            n_key_len= ntohl(key_len);
+            cout << "arg length" << n_key_len << endl;
+
+            char marshalled [n_mars_len+1];
+            memcpy (marshalled, buff+8, n_mars_len);
+            marshalled[n_mars_len]= '\0';
+
+            cout << "Marshalled " << marshalled << endl;
+
+            char key[n_key_len+1];
+            memcpy(key, buff+8+n_mars_len,n_key_len+1);
+            key[n_key_len]= '\0';
+
+            cout << "Key in client " << key << endl;
+
+            delete [] buff;
+
+            vector<string> key_s = split(key, '|');
+            vector<string> args_s = split(marshalled, '|');
+            vector<Args> arg_info;
+            int res=0;
+
+            string f_name = key_s[0];
+            int arg_length = stoi(key_s[1]);
+            cout << "creating args " << endl;
+            int index=2;
+            for (int i=0; i < arg_length; i++) {
+                arg_info.push_back(Args(stoi(key_s[index]),stoi(key_s[index+1]),stoi(key_s[index+2]), stoi(key_s[index+3])));
+                index+=4;
+            }
+
+
+            int arg_size= calculate_arg_size(arg_info);
+           // args = (void **) malloc(arg_size);
+            cout << "malloc args size " << endl;
+
+//            int unmarshall = unmarshall_args(args, arg_info, args_s);
+//            if (unmarshall < 0) {
+//                cout << "Err unmarshalling client" << endl;
+//                return ERR_UNMARSHALLING_SERVER;
+
+//            }
+        }
+        return 0;
     }
     else {
         cout << "Neither success nor failure?" << endl;
+        return 0;
     }
 }
 

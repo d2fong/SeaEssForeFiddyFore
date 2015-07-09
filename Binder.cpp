@@ -17,7 +17,7 @@
 
 using namespace std;
 
-BinderDB binder_db;
+BinderDB binder_db = BinderDB();
 
 int Binder::send_register_response(int socket, int flag) {
     string buf = to_stri(flag);
@@ -84,9 +84,8 @@ int Binder::handle_request(int socket, int type) {
                return ERR_BINDER_RECV_FAIL;
            }
            retVal = receive_location_request(socket,ntohl(m_len));
-           if (retVal != 0) {
-               //Find the funtion,
-               //Return the server info
+           if (retVal < 0) {
+               cout << "Binder: ERROR sending location response" << endl;
            }
            break;
        }
@@ -210,7 +209,7 @@ void Binder::print_status() {
 
 int Binder::send_location_response(int socket, string key) {
 
-    cout << "GOT HERE WITH KEY" << key << endl;
+    cout << "Sending Location Response with Key: " << key << endl;
     int msg_type;
     int reason_code;
     int send_bytes = 4;
@@ -230,7 +229,6 @@ int Binder::send_location_response(int socket, string key) {
     }
     else {
         //TODO Load balance servers
-        cout << "In else key" << key << endl;
         ServerInfo s = binder_db.lookup[key][0];
 
         cout << "Binder:ServerInfo:" << s.host << endl;
@@ -246,7 +244,12 @@ int Binder::send_location_response(int socket, string key) {
         int port = htonl(s.port);
         memcpy (buff, s.host.c_str(),MAXHOSTNAME+1);
         memcpy (buff+MAXHOSTNAME+1, &port, 4);
-        return send_all(socket, buff,&buff_len);
+        int ret = send_all(socket, buff,&buff_len);
+        if (ret == -1) {
+            return ERR_BINDER_SEND_FAIL;
+        }
+        delete [] buff;
+        return 0;
     }
 }
 
@@ -263,6 +266,7 @@ int Binder::receive_location_request(int socket, int length) {
 
     memcpy (key, buff, key_size);
     key[key_size] ='\0';
+    delete [] buff;
     cout << "Key" << key << endl;
     cout << "Key size" << key_size << endl;
     return send_location_response(socket, key);

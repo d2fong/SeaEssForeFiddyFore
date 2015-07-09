@@ -25,7 +25,7 @@ ServerDB server_db;
 
 
 int handle_request (int socket, int messageType);
-int exec_args(string key, string args_s);
+int exec_args(int socket, string key, string args_s);
 int send_client_msg (int * argTypes, void **args, int arg_length);
 
 /**
@@ -79,7 +79,7 @@ int rpcRegister(char* name, int* argTypes, skeleton f) {
     cout << "Binder Register Message generated.." << endl;
 
     int m_send = s.send_register_request(reg_msg, s.get_binder_socket());
-    if (m_send == -1) {
+    if (m_send < 0) {
         return REGISTER_FAILURE;
     }
     cout << "Message to binder is sent" << endl;
@@ -231,7 +231,8 @@ int handle_request (int socket, int messageType) {
             cout << "KEY: " << key << endl;
             cout << "ARGS: " << args << endl;
             cout << "ARG LENGTH" << n_args_len << endl;
-            return exec_args(key, args);
+            delete [] buff;
+            return exec_args(socket,key, args);
         }
         default: {
             return 0;
@@ -239,7 +240,7 @@ int handle_request (int socket, int messageType) {
     }
 }
 
-int exec_args(string key, string arg_s) {
+int exec_args(int socket, string key, string arg_s) {
     Function f;
     vector<string> key_s = split(key, '|');
     vector<string> args_s = split(arg_s, '|');
@@ -248,7 +249,7 @@ int exec_args(string key, string arg_s) {
 
     string f_name = key_s[0];
     int arg_length = stoi(key_s[1]);
-
+    cout << "creating args " << endl;
     int index=2;
     for (int i=0; i < arg_length; i++) {
         arg_info.push_back(Args(stoi(key_s[index]),stoi(key_s[index+1]),stoi(key_s[index+2]), stoi(key_s[index+3])));
@@ -257,22 +258,39 @@ int exec_args(string key, string arg_s) {
 
     int arg_size= calculate_arg_size(arg_info);
     void ** args = (void **) malloc(arg_size);
+    cout << "malloc args size " << arg_size << endl;
 
     int unmarshall = unmarshall_args(args, arg_info, args_s);
     if (unmarshall < 0) {
         return ERR_UNMARSHALLING_SERVER;
     }
 
+    cout << "unmarshall args " << endl;
+
+
     if (server_db.functions.find(key) != server_db.functions.end()) {
         f = server_db.functions[key];
-        skeleton q = server_db.lookup[key];
-        res = (*q)(f.get_argtypes(), args);
-        if (res != 0) {
-            res = ERR_INVALID_ARGS;
+        cout << "Got f" << endl;
+        if (server_db.lookup.find(key) != server_db.lookup.end()) {
+            skeleton q = server_db.lookup[key];
+            cout << "Got skeleton" << endl;
+            res = (*q)(f.get_argtypes(), args);
+            if (res != 0) {
+                res = ERR_INVALID_ARGS;
+            }
         }
-        return s.send_execute_response(f.get_argtypes(),args,arg_length, res);
+        else {
+            cout << "Did not find skeleton" << endl;
+        }
+
+        cout << "About to Marshall args" << endl;
+        string marshall  = marshall_args(f.get_argtypes(),args, arg_length);
+        delete [] args;
+        cout << "Marshall in exec: " << marshall << endl;
+        return s.send_execute_response(socket, f,key,marshall, res);
     }
     else {
+        cout << "error: server doenst contain func " << endl;
         return ERR_SERVER_DOESNT_CONTAIN_FUNC;
     }
 }

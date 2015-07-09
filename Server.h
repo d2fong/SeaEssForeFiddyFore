@@ -28,7 +28,7 @@ public:
     RegisterMessage create_register_message(Function f);
 
     int send_register_request(RegisterMessage m, int binderSocket);
-    int send_execute_response( int* argTypes, void** args, int arg_length, int reason_code);
+    int send_execute_response(int socket, Function f, string key, string marshall, int reason_code);
 
 
 };

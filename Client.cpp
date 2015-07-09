@@ -124,8 +124,7 @@ int Client::send_execute_request(int serverSocket, char *name, int *argTypes, vo
     string func_key = func.get_key();
     int func_size = func_key.length() + 1;
 
-    string dataMarshallingKey_s = marshall_args(argTypes, args, arg_length);
-    string dataMarshallingKey = dataMarshallingKey_s.substr(0, dataMarshallingKey_s.size()-1);
+    string dataMarshallingKey = marshall_args(argTypes, args, arg_length);
 
     cout << "MARSHALL KEY" << dataMarshallingKey << endl;
 
@@ -160,7 +159,7 @@ int Client::send_execute_request(int serverSocket, char *name, int *argTypes, vo
     return send_all(serverSocket, buffer, &byte_length);
 }
 
-int Client::receive_execute_response() {
+int Client::receive_execute_response(void *** args) {
     int ret;
     int flag;
     int reason_code;
@@ -173,10 +172,72 @@ int Client::receive_execute_response() {
         return ntohl(reason_code);
     }
     else {
-        //SUCCESS
-        //TODO Need to send argTypes..
+        int m_length =0;
+        int mars_len = 0;
+        int key_len = 0;
+        int n_mars_len=0;
+        int n_key_len=0;
+
+        ret = recv(serverSocket, &(m_length), 4, 0);
+        if (ret < 0) {
+            return ERR_SERVER_CLIENT_RECV;
+        }
+        int n_len = ntohl(m_length);
+        cout << "RECV EXECUTE RESPONSE: len: " << n_len << endl;
+
+        char * buff = new char [n_len];
+        ret = recv(serverSocket, buff, n_len,0);
+        if (ret < 0) {
+            return ERR_SERVER_CLIENT_RECV;
+        }
+
+        memcpy (&mars_len, buff,4);
+        n_mars_len = ntohl(mars_len);
+
+        cout << "marshall Length " << n_mars_len << endl;
+        memcpy (&key_len, buff+4 ,4);
+
+        n_key_len= ntohl(key_len);
+        cout << "arg length" << n_key_len << endl;
+
+        char marshalled [n_mars_len+1];
+        memcpy (marshalled, buff+8, n_mars_len);
+        marshalled[n_mars_len]= '\0';
+
+        cout << "Marshalled " << marshalled << endl;
+
+        char key[n_key_len+1];
+        memcpy(key, buff+8+n_mars_len,n_key_len+1);
+        key[n_key_len]= '\0';
+
+        cout << "Key on the otha side" << key << endl;
+
+        vector<string> key_s = split(key, '|');
+        vector<string> args_s = split(marshalled, '|');
+        vector<Args> arg_info;
+        int res=0;
+
+        string f_name = key_s[0];
+        int arg_length = stoi(key_s[1]);
+        cout << "creating args " << endl;
+        int index=2;
+        for (int i=0; i < arg_length; i++) {
+            arg_info.push_back(Args(stoi(key_s[index]),stoi(key_s[index+1]),stoi(key_s[index+2]), stoi(key_s[index+3])));
+            index+=4;
+        }
+
+
+        int arg_size= calculate_arg_size(arg_info);
+        *args = (void **) malloc(arg_size);
+        cout << "malloc args size " << endl;
+
+        int unmarshall = unmarshall_args(*args, arg_info, args_s);
+        if (unmarshall < 0) {
+            cout << "Err unmarshalling client" << endl;
+            return ERR_UNMARSHALLING_SERVER;
+        }
     }
 
-
+return 0;
 
 }
