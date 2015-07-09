@@ -66,6 +66,7 @@ int Binder::handle_request(int socket, int type) {
     int retVal = 0;
     switch(type){
         case REGISTER: {
+            serverSockets.push_back(socket);
             m_len = 0;
             recv_length = recv(socket, &(m_len), 4, 0);
             if (recv_length < 0) {
@@ -90,6 +91,10 @@ int Binder::handle_request(int socket, int type) {
            }
            break;
        }
+        case TERMINATE: {
+            //For each server connection, destroy it.
+            shutdown_everything();
+        }
 //        default:
 //            retVal = -1;
 //            break;
@@ -266,4 +271,15 @@ int Binder::receive_location_request(int socket, int length) {
     cout << "Key" << key << endl;
     cout << "Key size" << key_size << endl;
     return send_location_response(socket, key);
+}
+
+
+int Binder::shutdown_everything() {
+    for (vector<int>::iterator t = serverSockets.begin(); t != serverSockets.end(); t++) {
+        int m_type = htonl(TERMINATE);
+        int expect = 4;
+        int r = send_all(*t, (char*) &m_type, &expect);
+
+    }
+    return 0;
 }

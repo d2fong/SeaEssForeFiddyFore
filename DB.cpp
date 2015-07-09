@@ -46,6 +46,16 @@ int BinderDB::update_db(string f_name, string s_name, int port, string key) {
 
 }
 
+vector<ServerInfo> BinderDB::get_server_list() {
+    typedef map<string, ServerInfo> ServDBEntry;
+    ServDBEntry s;
+    vector<ServerInfo> servers;
+    for(ServDBEntry::iterator it = s.begin(); it != s.end(); ++it) {
+        servers.push_back(it->second);
+    }
+    return servers;
+}
+
 /**
  * Args
  */

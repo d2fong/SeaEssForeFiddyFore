@@ -72,6 +72,7 @@ public:
     map<string, vector<ServerInfo> > lookup;
     BinderDB() {}
     int update_db(string f_name, string s_name, int port, string key);
+    vector<ServerInfo> get_server_list();
 };
 
 class ServerDB {

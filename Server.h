@@ -16,8 +16,12 @@ private:
     int port;
 
 public:
+
+    string binder_address;
+    string binder_port;
+
     Server() { }
-    Server(string host, int port, int sockForClient, int sockForBinder) : host(host), port(port), clientSocket(sockForClient), binderSocket(sockForBinder) { }
+    Server(string host, int port, int sockForClient, int sockForBinder, string binder_address, string binder_port) :binder_address(binder_address), binder_port(binder_port), host(host), port(port), clientSocket(sockForClient), binderSocket(sockForBinder) { }
 
     int get_binder_socket();
     int get_client_socket();

@@ -55,7 +55,7 @@ int rpcInit() {
         return ERR_BINDER_CONNECT_FAIL;
     }
 
-    s = Server(string(ret_host), ret_port, client_socket,binder_socket);
+    s = Server(string(ret_host), ret_port, client_socket,binder_socket, string(binder_addr), string(binder_port));
     server_db = ServerDB();
     cout << "Connected to binder" << endl;
     return 0;
@@ -232,6 +232,9 @@ int handle_request (int socket, int messageType) {
             cout << "ARG LENGTH" << n_args_len << endl;
             return exec_args(key, args);
         }
+        case TERMINATE:
+            handle_terminate_request(socket);
+            break;
         default: {
             return 0;
         }
@@ -261,3 +264,8 @@ int exec_args(string key, string arg_s) {
 }
 
 
+void handle_terminate_request(int socket) {
+    if (socket == s.get_binder_socket()) {
+        exit(0);
+    }
+}

@@ -21,9 +21,13 @@ private:
 
 public:
     Client() { }
-    Client(int binderSocket) : binderSocket(binderSocket) {}
+    Client(int binderSocket) : binderSocket(binderSocket) {
+        binderSocket = -1;
+    }
 
-    Client(int binderSocket, int serverSocket) : binderSocket(binderSocket), serverSocket(serverSocket) {}
+    Client(int binderSocket, int serverSocket) : binderSocket(binderSocket), serverSocket(serverSocket) {
+
+    }
 
     int get_binder_socket();
     int get_server_socket();
