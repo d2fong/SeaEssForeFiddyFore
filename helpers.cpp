@@ -13,8 +13,99 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include "DB.h"
 
 using namespace std;
+
+int unmarshall_args (int * argTypes, void **args, vector<Args> arg_info) {
+
+    return 0;
+}
+
+string marshall_args (int * argTypes, void **args, int arg_length) {
+
+    vector <Args> a;
+    for (int i =0; i < arg_length; i++) {
+        a.push_back(Args(argTypes[i]));
+    }
+    stringstream  s;
+    string buff="";
+    int curr_index=0;
+    for (int i =0; i < arg_length; i++) {
+        switch (a[i].get_type()) {
+            case ARG_CHAR: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((char*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((char *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_SHORT: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((short*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((short *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_INT: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((int*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((int *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_LONG: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((long*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((long *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_DOUBLE: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((double*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((double *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_FLOAT: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((float*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((float *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            default: {
+                return "";
+            }
+        }
+    }
+    return s.str();
+}
 
 /**
  * Get the size of a argsArray passed by the rpcCall
@@ -151,11 +242,80 @@ string to_stri(int i) {
     out << i;
     return out.str();
 }
-void split(vector<string> &tokens, const string &text, char sep) {
+vector<string> split( const string &text, char sep) {
+    vector <string> tokens;
     int start = 0, end = 0;
     while ((end = text.find(sep, start)) != string::npos) {
         tokens.push_back(text.substr(start, end - start));
         start = end + 1;
     }
     tokens.push_back(text.substr(start));
+    return tokens;
+}
+
+int calculate_arg_size(vector<Args> arg_info) {
+    int size = 0;
+    int type;
+    Args currArg;
+    for (int i =0; i < arg_info.size(); i++) {
+        type= arg_info[i].get_type();
+        currArg = arg_info[i];
+        switch (type) {
+            case ARG_CHAR: {
+                if (currArg.get_scalar()==1) {
+                    size += 1;
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(char);
+                }
+                break;
+            }
+            case ARG_SHORT: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(short);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(short);
+                }
+                break;
+            }
+            case ARG_INT: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(int);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(int);
+                }
+                break;
+            }
+            case ARG_LONG: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(long);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(long);
+                }
+                break;
+            }
+            case ARG_DOUBLE: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(double);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(double);
+                }
+                break;
+            }
+            case ARG_FLOAT: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(float);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(float);
+                }
+                break;
+            }
+        }
+    }
+    return size;
 }

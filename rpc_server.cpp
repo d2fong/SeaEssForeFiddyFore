@@ -25,6 +25,8 @@ ServerDB server_db;
 
 
 int handle_request (int socket, int messageType);
+int exec_args(string key, string args_s);
+
 /**
  * Creates connection socket to service clients. Also opens a connection with the binder
  */
@@ -43,7 +45,7 @@ int rpcInit() {
 
     //Open connection to binder
 
-    char *binder_addr = getenv("BINDER_ADDRESS");
+   char *binder_addr = getenv("BINDER_ADDRESS");
     char *binder_port = getenv("BINDER_PORT");
 
 
@@ -189,37 +191,73 @@ int handle_request (int socket, int messageType) {
     int rec;
     switch (messageType) {
         case EXECUTE: {
+            int m_length =0;
             int key_len = 0;
             int args_len = 0;
-            rec = recv(socket, &(key_len), 4, 0);
+            int n_key_len=0;
+            int n_args_len=0;
+
+            rec = recv(socket, &(m_length), 4, 0);
             if (rec < 0) {
                 return ERR_SERVER_CLIENT_RECV;
             }
-            key_len = ntohl(key_len);
-            char key[key_len + 1];
-            rec = recv(socket, key, key_len,0);
-            if (rec < 0) {
-                return ERR_SERVER_CLIENT_RECV;
-            }
-            key[key_len] = '\0';
-            rec = recv(socket, &args_len, 4, 0);
-            if (rec < 0) {
-                return ERR_SERVER_CLIENT_RECV;
-            }
-            args_len = ntohl(args_len);
-            char args[args_len + 1];
-            if (rec < 0) {
-                return ERR_SERVER_CLIENT_RECV;
-            }
-            rec = recv(socket, args, args_len,0);
+            int n_len = ntohl(m_length);
+            cout << "N_Length " << n_len << endl;
+
+            char * buff = new char [n_len];
+            rec = recv(socket, buff, n_len,0);
+
+            memcpy (&key_len, buff,4);
+            n_key_len = ntohl(key_len);
+
+            cout << "Key Length " << n_key_len << endl;
+
+            char key[n_key_len+1];
+            memcpy (key, buff+4, n_key_len);
+            key[n_key_len]= '\0';
+
+            cout << "Key " << key << endl;
+
+            memcpy(&args_len, buff+4+n_key_len,4);
+            n_args_len = ntohl(args_len);
+            cout << "Args Length " << n_args_len << endl;
+
+            char args[n_args_len+1];
+            memcpy(args, buff+8+n_key_len, n_args_len);
+            args[n_args_len] ='\0';
+
+
             cout << "KEY: " << key << endl;
             cout << "ARGS: " << args << endl;
-            return 0;
+            cout << "ARG LENGTH" << n_args_len << endl;
+            return exec_args(key, args);
         }
         default: {
             return 0;
         }
     }
+}
+
+int exec_args(string key, string arg_s) {
+    vector<string> key_s = split(key, '|');
+    vector<string> args_s = split(arg_s, '|');
+    vector<Args> arg_info;
+
+    string f_name = key_s[0];
+    int arg_length = key_s[1];
+
+    int index=2;
+    for (int i=0; i < arg_length; i++) {
+        arg_info.push_back(Args(key_s[index],key_s[index+1],key_s[index+2], key_s[index+3],key_s[index+4]));
+        index+=5;
+    }
+
+    int arg_size= calculate_arg_size(arg_info);
+    void ** args = (void **) malloc(arg_size);
+
+
+
+    return 0;
 }
 
 

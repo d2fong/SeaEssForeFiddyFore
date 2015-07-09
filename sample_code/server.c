@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
   rpcRegister("f4", argTypes4, *f4_Skel);
 //
 //  /* call rpcExecute */
-//  rpcExecute();
+  rpcExecute();
 
   /* return */
   return 0;

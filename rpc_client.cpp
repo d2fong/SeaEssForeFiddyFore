@@ -13,6 +13,7 @@
 #include "error.h"
 #include "constants.h"
 #include <sys/socket.h>
+#include "helpers.h"
 #include <iostream>
 #include <stdlib.h>
 
@@ -20,8 +21,10 @@ using namespace std;
 Client c = Client();
 
 int rpcCall(char* name, int* argTypes, void** args) {
-    char* binderAddr = getenv("BINDER_ADDRESS");
-    char* binderPort = getenv("BINDER_PORT");
+    char *binderAddr = getenv("BINDER_ADDRESS");
+    char *binderPort = getenv("BINDER_PORT");
+    int i = 0;
+    while (argTypes[i++]);
 
     cout << "Init rpc call" << endl;
 
@@ -44,35 +47,47 @@ int rpcCall(char* name, int* argTypes, void** args) {
 
     int msg_type;
     int reason_code = 0;
-    int res = recv(c.get_binder_socket(),&msg_type,4,0);
+    int res = recv(c.get_binder_socket(), &msg_type, 4, 0);
     if (res == -1) {
         return ERR_BINDER_RECV_FAIL;
     }
     msg_type = ntohl(msg_type);
     if (msg_type == LOCAITON_FAILURE) {
         cout << "Location failure" << endl;
-        res = recv(c.get_binder_socket(),&reason_code,4,0);
+        res = recv(c.get_binder_socket(), &reason_code, 4, 0);
         if (res == -1) {
             return ntohl(reason_code);
         }
     }
-    else if (msg_type == LOCATION_SUCCESS){
+    else if (msg_type == LOCATION_SUCCESS) {
         cout << "Location success" << endl;
-        char buff [MAXHOSTNAME + 1 + 4];
-        char s_name [MAXHOSTNAME +1];
-        int port =0;
-        res = recv(c.get_binder_socket(),buff,MAXHOSTNAME+1+4,0);
-        memcpy (s_name, buff, MAXHOSTNAME+1);
-        memcpy (&port, buff+MAXHOSTNAME+1, 4);
-        s_name[MAXHOSTNAME]= '\0';
+        char buff[MAXHOSTNAME + 1 + 4];
+        char s_name[MAXHOSTNAME + 1];
+        int port = 0;
+        res = recv(c.get_binder_socket(), buff, MAXHOSTNAME + 1 + 4, 0);
+        memcpy(s_name, buff, MAXHOSTNAME + 1);
+        memcpy(&port, buff + MAXHOSTNAME + 1, 4);
+        s_name[MAXHOSTNAME] = '\0';
         port = ntohl(port);
         cout << "server" << s_name << endl;
         cout << "port" << port << endl;
-    } else {
-        cout << "received neither location failure or location success" << endl;
-    }
 
-
+        //connect to the server
+        int s_server = connect_to(s_name, (char *) to_stri(port).c_str());
+        if (s_server < 0) {
+            cout << "error: could not connect to specified server" << endl;
+            return -1;
+        }
+        c.set_server_socket(s_server);
+        int r = c.send_execute_request(c.get_server_socket(), name, argTypes, args);
+//        if (r < 0) {
+//            cout << "error:  Couldnt send
+//        }
+//    } else {
+//        cout << "received neither location failure or location success" << endl;
+//    }
+//
+//
 //    if (locRsp.messageType == LOCATION_FAILURE) {
 //        return -1;
 //    } else if(locRsp.messageType == LOCATION_SUCCESS) {
@@ -86,5 +101,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
 //            return 0;
 //        }
 //    }
+    }
     return 0;
 }

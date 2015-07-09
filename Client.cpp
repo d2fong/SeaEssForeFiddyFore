@@ -18,6 +18,9 @@
 
 using namespace std;
 
+void Client::set_server_socket(int socket) {
+    serverSocket = socket;
+}
 
 int Client::get_binder_socket() {
     return binderSocket;
@@ -113,8 +116,49 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
 }
 
 
-
+//
 //Create a execute request message
-Message Client::create_execute_request(char* func_name, int* argTypes, void** args){
-    return Message();
+int Client::send_execute_request(int serverSocket, char *name, int *argTypes, void **args){
+    int arg_length = 0;
+    while(argTypes[arg_length++]);
+    arg_length -= 1;
+
+    Function func = Function(string(name), argTypes, arg_length);
+    string func_key = func.get_key();
+    int func_size = func_key.length() + 1;
+
+    string dataMarshallingKey_s = marshall_args(argTypes, args, arg_length);
+    string dataMarshallingKey = dataMarshallingKey_s.substr(0, dataMarshallingKey_s.size()-1);
+
+    cout << "MARSHALL KEY" << dataMarshallingKey << endl;
+
+    int marshallSize = dataMarshallingKey.length() + 1;
+    cout << "MARSHALL SIZE" << marshallSize << endl;
+
+    int cbf_length = func_size + marshallSize;
+    int ibf_length = 16;
+
+    int m_length = func_size;
+    int b_length = htonl(m_length);
+
+    int mars_length = marshallSize;
+    int b_mars_length = htonl(mars_length);
+
+    int b_type = htonl(EXECUTE);
+
+    char *buffer = new char[cbf_length + ibf_length];
+
+    int mlen= htonl(cbf_length+ ibf_length-8);
+
+    memcpy(buffer, &b_type, 4);
+    memcpy(buffer+4,&mlen , 4);
+    memcpy(buffer+8, &b_length, 4);
+    memcpy(buffer+12, func_key.c_str(), func_size);
+    memcpy(buffer+12+func_size, &b_mars_length, 4);
+    memcpy(buffer+16+func_size, dataMarshallingKey.c_str(), mars_length);
+
+    cout << "Sending execute message" << endl;
+
+    int byte_length = cbf_length + ibf_length;
+    return send_all(serverSocket, buffer, &byte_length);
 }
