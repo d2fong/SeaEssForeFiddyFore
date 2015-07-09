@@ -30,6 +30,7 @@ public:
     int get_input();
     int get_output();
     int get_type();
+    int get_type_from_arg_type();
     int get_arr_length();
     int get_scalar();
     string get_args_key ();

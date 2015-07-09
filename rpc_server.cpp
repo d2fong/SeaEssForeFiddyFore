@@ -40,7 +40,7 @@ int rpcInit() {
     char *binder_port = getenv("BINDER_PORT");
 
 
-    int binder_socket = connect_to(binder_addr, binder_port);
+    int binder_socket = connect_to(binder_addr, binder_port);`
     if (binder_socket < 0) {
         cout << "Could not connect to binder" << endl;
         return ERR_BINDER_CONNECT_FAIL;

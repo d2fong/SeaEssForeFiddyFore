@@ -13,6 +13,7 @@
 #include "error.h"
 #include "constants.h"
 #include <sys/socket.h>
+#include "helpers.h"
 #include <iostream>
 #include <stdlib.h>
 
@@ -22,6 +23,8 @@ Client c = Client();
 int rpcCall(char* name, int* argTypes, void** args) {
     char* binderAddr = getenv("BINDER_ADDRESS");
     char* binderPort = getenv("BINDER_PORT");
+    int i=0;
+    while (argTypes[i++]);
 
     cout << "Init rpc call" << endl;
 
@@ -68,11 +71,23 @@ int rpcCall(char* name, int* argTypes, void** args) {
         port = ntohl(port);
         cout << "server" << s_name << endl;
         cout << "port" << port << endl;
-    } else {
-        cout << "received neither location failure or location success" << endl;
-    }
 
-
+        //connect to the server
+        int s_server = connect_to(s_name, to_stri(port));
+        if (s_server < 0) {
+            cout << "error: could not connect to specified server" << endl;
+            return -1;
+        }
+        c.set_server_socket(connect_to(s_server);
+        int r = c.send_execute_request(c.get_server_socket(), name, argTypes, args);
+//        if (r < 0) {
+//            cout << "error:  Couldnt send
+//        }
+//    } else {
+//        cout << "received neither location failure or location success" << endl;
+//    }
+//
+//
 //    if (locRsp.messageType == LOCATION_FAILURE) {
 //        return -1;
 //    } else if(locRsp.messageType == LOCATION_SUCCESS) {

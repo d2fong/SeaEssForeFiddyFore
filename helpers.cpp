@@ -13,8 +13,96 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include "DB.h"
 
 using namespace std;
+
+
+string marshall_args (int * argTypes, void **args, int arg_length) {
+
+
+    vector <Args> a;
+    for (int i =0; i < arg_length; i++) {
+        a.push_back(Args(argTypes[i]));
+    }
+    stringstream  s;
+    string buff="";
+    int curr_index=0;
+    for (int i =0; i < arg_length; i++) {
+        switch (a[i].get_type()) {
+            case ARG_CHAR: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((char*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((char *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_SHORT: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((short*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((short *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_INT: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((int*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((int *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_LONG: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((long*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((long *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_DOUBLE: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((double*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((double *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_FLOAT: {
+                if (a[i].get_scalar() == 1) {
+                    s << *((float*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((float *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            default: {
+                return "";
+            }
+        }
+    }
+    return s.str();
+}
 
 /**
  * Get the size of a argsArray passed by the rpcCall

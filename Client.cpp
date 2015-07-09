@@ -115,6 +115,30 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
 
 
 //Create a execute request message
-Message Client::create_execute_request(char* func_name, int* argTypes, void** args){
-    return Message();
-}
+//int Client::send_execute_request(int serverSocket, char *name, int *argTypes, void **args){
+//    int arg_length = 0;
+//    while(argTypes[arg_length++]);
+//    arg_length--;
+//
+//    Function func = Function(string(name), argTypes, arg_length);
+//    string func_key = func.get_key();
+//    int func_size = func_key.get_length() + 1;
+//
+//    int cbf_length = func_size;
+//    int ibf_length = 8;
+//
+//    int m_length = func_size;
+//    int b_length = htonl(m_length);
+//    int b_type = htonl(EXECUTE);
+//
+//    char *buffer = new char[cbf_length + ibf_length];
+//
+//    memcpy(buffer, &b_type, 4);
+//    memcpy(buffer+4, &b_length, 4);
+//    memcpy(buffer+8, func_key.c_str(), key_size);
+//
+//    cout << "Sending execute message" << endl;
+//
+//    int byte_length = cbf_length + ibf_length;
+//    return send_all(serverSocket, buffer, &byte_length);
+//}

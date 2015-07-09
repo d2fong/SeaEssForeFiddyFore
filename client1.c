@@ -10,10 +10,27 @@
 #include <string.h>
 
 #include "rpc.h"
-
 #define CHAR_ARRAY_LENGTH 100
 
 int main() {
+
+
+//  int result =5;
+//  int q [2];
+//  q[0] = 1;
+//  q[1] = 2;
+//  q[2]= 3;
+//
+//  #define PARAMETER_COUNT 2 // Number of RPC arguments
+//  #define LENGTH 3 // Vector length
+//  int argTypes[PARAMETER_COUNT+1];
+//  void **args = (void **)malloc(PARAMETER_COUNT * sizeof(void *));
+//  argTypes[0] = (1 << ARG_OUTPUT) | (ARG_INT << 16); // result
+//  argTypes[1] = (1 << ARG_INPUT) | (ARG_INT << 16) | LENGTH; // vector
+//  argTypes[2] = 0; // Terminator
+//  args[0] = (void *)&result;
+//  args[1] = (void *)q;
+//  rpcCall("sum", argTypes, args);
 
   /* prepare the arguments for f0 */
   int a0 = 5;
@@ -27,7 +44,7 @@ int main() {
   argTypes0[1] = (1 << ARG_INPUT) | (ARG_INT << 16);
   argTypes0[2] = (1 << ARG_INPUT) | (ARG_INT << 16);
   argTypes0[3] = 0;
-    
+
   args0 = (void **)malloc(count0 * sizeof(void *));
   args0[0] = (void *)&return0;
   args0[1] = (void *)&a0;
@@ -42,21 +59,21 @@ int main() {
   long return1;
   int argTypes1[count1 + 1];
   void **args1;
-    
+
   argTypes1[0] = (1 << ARG_OUTPUT) | (ARG_LONG << 16);
   argTypes1[1] = (1 << ARG_INPUT) | (ARG_CHAR << 16);
   argTypes1[2] = (1 << ARG_INPUT) | (ARG_SHORT << 16);
   argTypes1[3] = (1 << ARG_INPUT) | (ARG_INT << 16);
   argTypes1[4] = (1 << ARG_INPUT) | (ARG_LONG << 16);
   argTypes1[5] = 0;
-    
+
   args1 = (void **)malloc(count1 * sizeof(void *));
   args1[0] = (void *)&return1;
   args1[1] = (void *)&a1;
   args1[2] = (void *)&b1;
   args1[3] = (void *)&c1;
   args1[4] = (void *)&d1;
-    
+
   /* prepare the arguments for f2 */
   float a2 = 3.14159;
   double b2 = 1234.1001;

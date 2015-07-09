@@ -27,6 +27,7 @@ public:
 
     int get_binder_socket();
     int get_server_socket();
+    void set_server_socket(int socket);
 
     //Connect to a server/binder given the addr and port
     int connect_to_something(char* addr, char* port);
@@ -34,14 +35,11 @@ public:
     //Create a location request message
     LocationRequestMessage create_location_request(char* funcName, int* argTypes);
 
-    //Create a execute request message
-    Message create_execute_request(char* funcName, int* argTypes, void** args);
-
     //Send the location request message
     int send_location_request(LocationRequestMessage m, int binderSocket);
 
     //Send the execute request message
-    int send_execute_request(Message m);
+    int send_execute_request(int serverSocket, char* name, int* argTypes, void**args);
 
     //Receive the location response message
     Message receive_location_response();

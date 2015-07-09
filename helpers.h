@@ -17,6 +17,7 @@ int recv_all(int socket, char* buf, int* bytesToReceive);
 int create_connection_socket(unsigned short portnum, unsigned short* ret_port, char* ret_host);
 int connect_to(char* addr, char* port);
 void split(vector<string> &tokens, const string &text, char sep);
+string marshall_args (int * argTypes, void **args, int arg_length) ;
 
 string to_stri(int i);
 
