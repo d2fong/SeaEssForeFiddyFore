@@ -4,6 +4,11 @@
 #include <string>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/select.h>
+#include <unistd.h>
+#include <netdb.h>
+
+
 
 // File includes
 #include "constants.h"
@@ -18,6 +23,8 @@ using namespace std;
 Server s;
 ServerDB server_db;
 
+
+int handle_request (int socket, int messageType);
 /**
  * Creates connection socket to service clients. Also opens a connection with the binder
  */
@@ -86,8 +93,133 @@ int rpcRegister(char* name, int* argTypes, skeleton f) {
 
 
 int rpcExecute() {
-    //TODO
+
+    fd_set master;    // master file descriptor list
+    fd_set read_fds;  // temp file descriptor list for select()
+    int fdmax;        // maximum file descriptor number
+
+    int listener;     // listening socket descriptor
+    int newfd;        // newly accept()ed socket descriptor
+    struct sockaddr_storage remoteaddr; // client address
+    socklen_t addrlen;
+
+    char buf[256];    // buffer for client data
+    int nbytes;
+
+
+    int i;
+
+    FD_ZERO(&master);    // clear the master and temp sets
+    FD_ZERO(&read_fds);
+
+
+    listener = s.get_client_socket();
+    if(listener == -1)
+        exit(-1);
+
+    // add the listener to the master set
+    FD_SET(listener, &master);
+
+    // keep track of the biggest file descriptor
+    fdmax = listener; // so far, it's this one
+
+    // main loop
+    for(;;)
+    {
+        read_fds = master; // copy it
+        if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
+        {
+            perror("select");
+            exit(4);
+        }
+        // run through the existing connections looking for data to read
+        for(i = 0; i <= fdmax; i++)
+        {
+            if (FD_ISSET(i, &read_fds))
+            {
+                if (i == listener)
+                {
+                    addrlen = sizeof(remoteaddr);
+                    newfd = accept(listener,(struct sockaddr* ) &remoteaddr , &addrlen);
+
+                    if (newfd == -1)
+                    {
+                        perror("accept");
+                    }
+                    else
+                    {
+                        FD_SET(newfd, &master); // add to master set
+                        if (newfd > fdmax)
+                        {    // keep track of the max
+                            fdmax = newfd;
+                        }
+                    }
+                }
+                else {
+
+                    int messageType;
+                    //Get Length
+                    int nbytes = recv(i, (char*)&messageType, 4, 0);
+                    if (nbytes <= 0) {
+                        // got error or connection closed by client
+                        if (nbytes == 0) {
+                            // connection closed
+                            printf("selectserver: socket %d hung up\n", i);
+                        } else {
+                            perror("recv");
+                        }
+                        close(i); // bye!
+                        FD_CLR(i, &master); // remove from master set
+                    }
+                    else {
+                        int r = handle_request(i,ntohl(messageType));
+                        if (r < 0) {
+                            cout << "We errd in server" << endl;
+                        }
+                    }
+                }
+            }
+        }
+    }
     return 0;
+}
+
+
+int handle_request (int socket, int messageType) {
+    int rec;
+    switch (messageType) {
+        case EXECUTE: {
+            int key_len = 0;
+            int args_len = 0;
+            rec = recv(socket, &(key_len), 4, 0);
+            if (rec < 0) {
+                return ERR_SERVER_CLIENT_RECV;
+            }
+            key_len = ntohl(key_len);
+            char key[key_len + 1];
+            rec = recv(socket, key, key_len,0);
+            if (rec < 0) {
+                return ERR_SERVER_CLIENT_RECV;
+            }
+            key[key_len] = '\0';
+            rec = recv(socket, &args_len, 4, 0);
+            if (rec < 0) {
+                return ERR_SERVER_CLIENT_RECV;
+            }
+            args_len = ntohl(args_len);
+            char args[args_len + 1];
+            if (rec < 0) {
+                return ERR_SERVER_CLIENT_RECV;
+            }
+            rec = recv(socket, args, args_len,0);
+            cout << "KEY: " << key << endl;
+            cout << "ARGS: " << args << endl;
+            return 0;
+        }
+        default: {
+            return 0;
+        }
+    }
 }
 
 
