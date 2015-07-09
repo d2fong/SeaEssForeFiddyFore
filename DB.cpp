@@ -74,12 +74,12 @@ void Args::set_arg_types(int arg_type) {
     output = (arg_type >> ARG_OUTPUT) & 0x1;
     type = (arg_type >> 16) & 0xf;
     arr_length= (arg_type & 0xFFFF);
-    if (arr_length == 0) {
-        scalar=1;
-        arr_length=1;
+    if (arr_length != 0) {
+        scalar =0;
     }
     else {
-        scalar=0;
+        scalar=1;
+        arr_length=1;
     }
 }
 
