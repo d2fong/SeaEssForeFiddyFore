@@ -17,9 +17,12 @@
 
 using namespace std;
 
+int unmarshall_args (int * argTypes, void **args, vector<Args> arg_info) {
+
+    return 0;
+}
 
 string marshall_args (int * argTypes, void **args, int arg_length) {
-
 
     vector <Args> a;
     for (int i =0; i < arg_length; i++) {
@@ -239,11 +242,80 @@ string to_stri(int i) {
     out << i;
     return out.str();
 }
-void split(vector<string> &tokens, const string &text, char sep) {
+vector<string> split( const string &text, char sep) {
+    vector <string> tokens;
     int start = 0, end = 0;
     while ((end = text.find(sep, start)) != string::npos) {
         tokens.push_back(text.substr(start, end - start));
         start = end + 1;
     }
     tokens.push_back(text.substr(start));
+    return tokens;
+}
+
+int calculate_arg_size(vector<Args> arg_info) {
+    int size = 0;
+    int type;
+    Args currArg;
+    for (int i =0; i < arg_info.size(); i++) {
+        type= arg_info[i].get_type();
+        currArg = arg_info[i];
+        switch (type) {
+            case ARG_CHAR: {
+                if (currArg.get_scalar()==1) {
+                    size += 1;
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(char);
+                }
+                break;
+            }
+            case ARG_SHORT: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(short);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(short);
+                }
+                break;
+            }
+            case ARG_INT: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(int);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(int);
+                }
+                break;
+            }
+            case ARG_LONG: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(long);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(long);
+                }
+                break;
+            }
+            case ARG_DOUBLE: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(double);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(double);
+                }
+                break;
+            }
+            case ARG_FLOAT: {
+                if (currArg.get_scalar()==1) {
+                    size += sizeof(float);
+                }
+                else {
+                    size += currArg.get_arr_length()* sizeof(float);
+                }
+                break;
+            }
+        }
+    }
+    return size;
 }

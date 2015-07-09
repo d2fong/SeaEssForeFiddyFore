@@ -127,7 +127,9 @@ int Client::send_execute_request(int serverSocket, char *name, int *argTypes, vo
     string func_key = func.get_key();
     int func_size = func_key.length() + 1;
 
-    string dataMarshallingKey = marshall_args(argTypes, args, arg_length);
+    string dataMarshallingKey_s = marshall_args(argTypes, args, arg_length);
+    string dataMarshallingKey = dataMarshallingKey_s.substr(0, dataMarshallingKey_s.size()-1);
+
     cout << "MARSHALL KEY" << dataMarshallingKey << endl;
 
     int marshallSize = dataMarshallingKey.length() + 1;
