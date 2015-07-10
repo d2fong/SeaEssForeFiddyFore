@@ -89,11 +89,13 @@ int Server::send_execute_response(int socket, Function f, string key, string mar
         send_all(socket, buff,&msg_size);
     }
     else {
+        cout << "Marshall: " << marshall << endl;
         cout << "Generating execute response" << endl;
-        flag = htonl(EXECUTE_SUCCESS);
-
         cout << "Sending marshall key: " << marshall << endl;
         cout << "Sending arg len: " << f.get_arg_length() << endl;
+
+        flag = htonl(EXECUTE_SUCCESS);
+
         int cbf_length = marshall.length()+1 + key.length()+1;
         int ibf_length = 16;
 

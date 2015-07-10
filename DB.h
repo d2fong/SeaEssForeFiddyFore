@@ -45,7 +45,7 @@ private:
     void gen_args();
 public:
     Function() {}
-    Function(string name, int *arg_types, int arg_length) : name(name), arg_types(arg_types),arg_length(arg_length) {
+    Function(string name, int *at, int arg_length) : name(name), arg_types(at), arg_length(arg_length) {
         gen_args();
         gen_key();
     }

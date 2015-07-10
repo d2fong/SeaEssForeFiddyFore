@@ -41,7 +41,7 @@ public:
     int receive_location_response();
 
     //Receive the execute response message
-    int receive_execute_response(void *** argTypes);
+    int receive_execute_response(void ** argTypes);
 
 };
 

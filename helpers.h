@@ -21,6 +21,6 @@ vector<string> split(const string &text, char sep);
 string marshall_args (int * argTypes, void **args, int arg_length) ;
 string to_stri(int i);
 int calculate_arg_size(vector<Args> arg_info);
-int unmarshall_args (void **args, vector<Args> arg_info, vector<string>marshall);
+int unmarshall_args (void ***args, vector<Args> arg_info, vector<string>marshall);
 string append_vector_string (vector<string> vec, int to, int from);
 #endif //CS4544REEAL_SOURCE_FILE_H

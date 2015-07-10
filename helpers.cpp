@@ -26,26 +26,30 @@ string append_vector_string (vector<string> vec, int from, int to) {
     return  ret;
 }
 
-int unmarshall_args (void **args, vector<Args> arg_info, vector<string> marshall) {
+int unmarshall_args (void ***args, vector<Args> arg_info, vector<string> marshall) {
     Args curr_arg;
+
+    *args = (void **)malloc(arg_info.size() * sizeof(void *));
+
     int data,arr_len,offset;
     for (int i =0; i < arg_info.size(); i++) {
         curr_arg = arg_info[i];
         arr_len = curr_arg.get_arr_length();
         offset = i+arr_len-1;
+        cout << "Marshal[i] " << marshall[i] << endl;
         switch (curr_arg.get_type()) {
             case ARG_CHAR: {
                 if (arr_len==0) {
                     char *c = new char[sizeof(char)];
                     memcpy (c,marshall[i].c_str(), sizeof(char));
-                    args[i] = (void *)c;
+                    *(args[i]) = (void *)c;
                 }
                 else {
                     string str = append_vector_string(marshall,i, offset);
                     char *arr = new char[sizeof(char)*arr_len];
                     memcpy (arr,str.c_str(),sizeof(char)*arr_len+1);
                     arr[arr_len]= '\0';
-                    args[i] = (void *)arr;
+                    *(args[i]) = (void *)arr;
                     i = offset;
                 }
              break;
@@ -55,13 +59,13 @@ int unmarshall_args (void **args, vector<Args> arg_info, vector<string> marshall
                     short *s = new short[sizeof(short)];
                     int a = stoi(marshall[i].c_str());
                     memcpy (s,&a, sizeof(short));
-                    args[i] = (void *)s;
+                    *(args[i]) = (void *)s;
                 }
                 else {
                     string str = append_vector_string(marshall,i, offset);
                     short *arr = new short[sizeof(short)*arr_len];
                     memcpy (arr,str.c_str(),sizeof(short)*arr_len);
-                    args[i] = (void *)arr;
+                    *(args[i]) = (void *)arr;
                     i = offset;
                 }
                 break;
@@ -71,13 +75,13 @@ int unmarshall_args (void **args, vector<Args> arg_info, vector<string> marshall
                     int *in = new int[sizeof(int)];
                     int a = stoi(marshall[i].c_str());
                     memcpy (in,&a,sizeof(int));
-                    args[i] = (void *)(in);
+                    *(args[i]) = (void *)in;
                 }
                 else {
                     string str = append_vector_string(marshall,i, offset);
                     int *arr = new int[sizeof(int)*arr_len];
                     memcpy (arr,str.c_str(),sizeof(int)*arr_len);
-                    args[i] = (void *)arr;
+                    *(args[i]) = (void *)arr;
                     i = offset;
                 }
                 break;
@@ -87,7 +91,7 @@ int unmarshall_args (void **args, vector<Args> arg_info, vector<string> marshall
                     long *l = new long[sizeof(long)];
                     long a = stol(marshall[i].c_str());
                     memcpy (l,&a, sizeof(long));
-                    args[i] = (void *)l;
+                    *(args[i]) = (void *)l;
                 }
                 else {
                     string str = append_vector_string(marshall,i, offset);
@@ -100,7 +104,7 @@ int unmarshall_args (void **args, vector<Args> arg_info, vector<string> marshall
                         memcpy(l, &a, sizeof(long));
                         arr[i] = *l;
                     }
-                    args[i] = (void *)arr;
+                    *(args[i]) = (void *)arr;
                     i = offset;
                 }
                 break;
@@ -110,13 +114,13 @@ int unmarshall_args (void **args, vector<Args> arg_info, vector<string> marshall
                     double *d = new double[sizeof(double)];
                     double a = stod(marshall[i].c_str());
                     memcpy (d,&a, sizeof(double));
-                    args[i] = (void *)d;
+                    *(args[i]) = (void *)d;
                 }
                 else {
                     string str = append_vector_string(marshall,i, offset);
                     double *arr = new double[sizeof(double)*arr_len];
                     memcpy (arr,str.c_str(),sizeof(double)*arr_len);
-                    args[i] = (void *)arr;
+                    *(args[i]) = (void *)arr;
                     i = offset;
                 }
                 break;
@@ -126,13 +130,13 @@ int unmarshall_args (void **args, vector<Args> arg_info, vector<string> marshall
                     float *f = new float[sizeof(float)];
                     float a = stof(marshall[i].c_str());
                     memcpy (f,&a, sizeof(float));
-                    args[i] = (void *)f;
+                    *(args[i]) = (void *)f;
                 }
                 else {
                     string str = append_vector_string(marshall,i, offset);
                     float *arr = new float[sizeof(float)*arr_len];
                     memcpy (arr,str.c_str(),sizeof(float)*arr_len);
-                    args[i] = (void *)arr;
+                    *(args[i]) = (void *)arr;
                     i = offset;
                 }
                 break;
@@ -143,6 +147,8 @@ int unmarshall_args (void **args, vector<Args> arg_info, vector<string> marshall
             }
         }
     }
+    cout << "Got here" << endl;
+//    **args = ar;
 
    return 0;
 }
@@ -152,7 +158,13 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
     vector <Args> a;
     for (int i =0; i < arg_length; i++) {
         a.push_back(Args(argTypes[i]));
+        cout << "TYPE: " << a[i].get_type() << endl;
     }
+    cout << "Marshall_args: Vector<Args> size " << a.size() << endl;
+    int m =0;
+    while(args[m++]);
+    cout << "Marshall_args: **args size " << m << endl;
+    cout << "Marshall_args: arg_length " << arg_length << endl;
     stringstream  s;
     string buff="";
     int curr_index=0;
@@ -182,7 +194,9 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
             }
             case ARG_INT: {
                 if (a[i].get_arr_length()==0) {
+//                    cout << "A" << endl;
                     s << *((int*) (args[i])) << "|";
+//                    cout << "B" << endl;
                 }
                 else {
                     for (int  m=0; m < a[i].get_arr_length();m++) {
@@ -225,8 +239,10 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 break;
             }
             default: {
+                cout << "Got into default" << endl;
                 return "";
             }
+            cout << "S" << endl;
         }
     }
     cout << "No seg in marshall_args" << endl;

@@ -72,6 +72,13 @@ int rpcRegister(char* name, int* argTypes, skeleton f) {
     int arg_length = 0;
     while (argTypes[arg_length++]);
 
+
+    vector <Args> a;
+    for (int i =0; i < arg_length; i++) {
+        a.push_back(Args(argTypes[i]));
+        cout << "REGTYPE: " << a[i].get_type() << endl;
+    }
+
     Function func = Function(string(name), argTypes, arg_length-1);
 
     cout << "Got to beginning of rpcRegister.." << endl;
@@ -243,51 +250,178 @@ int handle_request (int socket, int messageType) {
 int exec_args(int socket, string key, string arg_s) {
     Function f;
     vector<string> key_s = split(key, '|');
-    vector<string> args_s = split(arg_s, '|');
+    vector<string> marshall = split(arg_s, '|');
     vector<Args> arg_info;
     int res=0;
 
     string f_name = key_s[0];
     int arg_length = stoi(key_s[1]);
+    cout << "" << endl;
+    cout << "" << endl;
     cout << "creating args " << endl;
     int index=2;
     for (int i=0; i < arg_length; i++) {
         arg_info.push_back(Args(stoi(key_s[index]),stoi(key_s[index+1]),stoi(key_s[index+2]), stoi(key_s[index+3])));
         index+=4;
     }
-
-    int arg_size= calculate_arg_size(arg_info);
-    void ** args = (void **) malloc(arg_size);
-    cout << "malloc args size " << arg_size << endl;
-
-    int unmarshall = unmarshall_args(args, arg_info, args_s);
-    if (unmarshall < 0) {
-        return ERR_UNMARSHALLING_SERVER;
-    }
-
     cout << "unmarshall args " << endl;
-
 
     if (server_db.functions.find(key) != server_db.functions.end()) {
         f = server_db.functions[key];
         cout << "Got f" << endl;
         if (server_db.lookup.find(key) != server_db.lookup.end()) {
+            int arg_size= calculate_arg_size(arg_info);
+//            void **args;
+
+            void** args = (void**)malloc(sizeof(void*) * arg_info.size());
+
+//            int a= unmarshall_args(&args,arg_info, args_s);
+            Args curr_arg;
+            int data,arr_len,offset;
+            for (int i =0; i < arg_info.size(); i++) {
+                curr_arg = arg_info[i];
+                arr_len = curr_arg.get_arr_length();
+                offset = i+arr_len-1;
+                cout << "Marshal[i] " << marshall[i] << endl;
+                switch (curr_arg.get_type()) {
+                    case ARG_CHAR: {
+                        if (arr_len==0) {
+                            char *c = new char[sizeof(char)];
+                            memcpy (c,marshall[i].c_str(), sizeof(char));
+                            args[i] = (void *)c;
+//                            *(args[i]) = (void *)c;
+
+
+                        }
+                        else {
+                            string str = append_vector_string(marshall,i, offset);
+                            char *arr = new char[sizeof(char)*arr_len];
+                            memcpy (arr,str.c_str(),sizeof(char)*arr_len+1);
+                            arr[arr_len]= '\0';
+                            args[i] = (void *)arr;
+//                            *(args[i]) = (void *)arr;
+                            i = offset;
+                        }
+                        break;
+                    }
+                    case ARG_SHORT: {
+                        if (arr_len==0) {
+                            short *s = new short[sizeof(short)];
+                            int a = stoi(marshall[i].c_str());
+                            memcpy (s,&a, sizeof(short));
+                            args[i] = (void *)s;
+                        }
+                        else {
+                            string str = append_vector_string(marshall,i, offset);
+                            short *arr = new short[sizeof(short)*arr_len];
+                            memcpy (arr,str.c_str(),sizeof(short)*arr_len);
+                            args[i] = (void *)arr;
+                            i = offset;
+                        }
+                        break;
+                    }
+                    case ARG_INT: {
+                        if (arr_len==0) {
+                            int *in = new int[sizeof(int)];
+                            int a = stoi(marshall[i].c_str());
+                            memcpy (in,&a,sizeof(int));
+                            args[i] = (void *)in;
+                        }
+                        else {
+                            string str = append_vector_string(marshall,i, offset);
+                            int *arr = new int[sizeof(int)*arr_len];
+                            memcpy (arr,str.c_str(),sizeof(int)*arr_len);
+                            args[i] = (void *)arr;
+                            i = offset;
+                        }
+                        break;
+                    }
+                    case ARG_LONG: {
+                        if (arr_len==0) {
+                            long *l = new long[sizeof(long)];
+                            long a = stol(marshall[i].c_str());
+                            memcpy (l,&a, sizeof(long));
+                            args[i] = (void *)l;
+                        }
+                        else {
+                            string str = append_vector_string(marshall,i, offset);
+                            long *arr = new long[sizeof(long)*arr_len];
+                            int j;
+                            long *l;
+                            for(j =0; j < arr_len; j++) {
+                                l = new long[sizeof(long)];
+                                long a = stol(marshall[i].c_str());
+                                memcpy(l, &a, sizeof(long));
+                                arr[i] = *l;
+                            }
+                            args[i] = (void *)arr;
+                            i = offset;
+                        }
+                        break;
+                    }
+                    case ARG_DOUBLE: {
+                        if (arr_len==0) {
+                            double *d = new double[sizeof(double)];
+                            double a = stod(marshall[i].c_str());
+                            memcpy (d,&a, sizeof(double));
+                            args[i] = (void *)d;
+                        }
+                        else {
+                            string str = append_vector_string(marshall,i, offset);
+                            double *arr = new double[sizeof(double)*arr_len];
+                            memcpy (arr,str.c_str(),sizeof(double)*arr_len);
+                            args[i] = (void *)arr;
+                            i = offset;
+                        }
+                        break;
+                    }
+                    case ARG_FLOAT: {
+                        if (arr_len==0) {
+                            float *f = new float[sizeof(float)];
+                            float a = stof(marshall[i].c_str());
+                            memcpy (f,&a, sizeof(float));
+                            args[i] = (void *)f;
+                        }
+                        else {
+                            string str = append_vector_string(marshall,i, offset);
+                            float *arr = new float[sizeof(float)*arr_len];
+                            memcpy (arr,str.c_str(),sizeof(float)*arr_len);
+                            args[i] = (void *)arr;
+                            i = offset;
+                        }
+                        break;
+                    }
+                    default: {
+                        cout << "Unmarshall: Shouldn't be here." << endl;
+                        return -1;
+                    }
+                }
+            }
+
+            cout << "ARgs[0]" << *((int *) args[0]) << endl;
+            cout << "ARgs[1]" << *((int *) args[1]) << endl;
+            cout << "ARgs[2]" << *((int *) args[2]) << endl;
+
+
             skeleton q = server_db.lookup[key];
             cout << "Got skeleton" << endl;
             res = (*q)(f.get_argtypes(), args);
+            cout << "ARgs[0] After " << *((int *) args[0]) << endl;
+            cout << "ARgs[1] After " << *((int *) args[1]) << endl;
+
+            string marshall = marshall_args(f.get_argtypes(), args, arg_length);
+            cout << "MARSHALL: " << marshall << endl;
             if (res != 0) {
                 res = ERR_INVALID_ARGS;
             }
+            cout << "Skeleton: result : " << res << endl;
+            delete [] args;
+            return s.send_execute_response(socket, f,key, marshall, res);
         }
         else {
             cout << "Did not find skeleton" << endl;
         }
 
-        cout << "About to Marshall args" << endl;
-        string marshall  = marshall_args(f.get_argtypes(),args, arg_length);
-        delete [] args;
-        cout << "Marshall in exec: " << marshall << endl;
-        return s.send_execute_response(socket, f,key,marshall, res);
     }
     else {
         cout << "error: server doenst contain func " << endl;

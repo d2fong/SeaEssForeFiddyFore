@@ -100,7 +100,7 @@ int rpcCall(char* name, int* argTypes, void** args) {
             ret = recv(c.get_server_socket(), &reason_code,4,0);
             return ntohl(reason_code);
         }
-        else {
+        else if (ntohl(flag) == EXECUTE_SUCCESS){
             int m_length =0;
             int mars_len = 0;
             int key_len = 0;
@@ -141,8 +141,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
 
             cout << "Key in client " << key << endl;
 
-            delete [] buff;
-
             vector<string> key_s = split(key, '|');
             vector<string> args_s = split(marshalled, '|');
             vector<Args> arg_info;
@@ -159,14 +157,16 @@ int rpcCall(char* name, int* argTypes, void** args) {
 
 
             int arg_size= calculate_arg_size(arg_info);
-           // args = (void **) malloc(arg_size);
-            cout << "malloc args size " << endl;
+            cout << "ArgInfo size " << arg_info.size() << endl;
+            delete [] args;
 
-//            int unmarshall = unmarshall_args(args, arg_info, args_s);
+            void **args;
+
+            int a = unmarshall_args(&args, arg_info, args_s);
 //            if (unmarshall < 0) {
 //                cout << "Err unmarshalling client" << endl;
 //                return ERR_UNMARSHALLING_SERVER;
-
+//
 //            }
         }
         return 0;
@@ -175,6 +175,7 @@ int rpcCall(char* name, int* argTypes, void** args) {
         cout << "Neither success nor failure?" << endl;
         return 0;
     }
+    return 0;
 }
 
 
