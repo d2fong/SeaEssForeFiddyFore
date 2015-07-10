@@ -218,8 +218,7 @@ int rpcCall(char* name, int* argTypes, void** args) {
                             int a = stoi(marshall[i].c_str());
                             cout << "string to int a " << a << endl;
                             memcpy(in, &a, sizeof(int));
-                            *(args + (i * sizeof(void *))) = (void *) in;
-                            cout << *(int *) *(args + (i * sizeof(void *))) << endl;
+                            args[i] = (void *) in;
                         }
                         else {
                             string str = append_vector_string(marshall,i, offset);
