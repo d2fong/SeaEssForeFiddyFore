@@ -358,13 +358,12 @@ int exec_args(int socket, string key, string arg_s) {
                             cout << "LONG ARR LEN" << arr_len << endl;
                             int j;
                             long *l;
-                            int q =m;
                             for(j =0; j < arr_len; j++) {
+                                cout << "LONG ARRAY LENGTH IS " << arr_len << endl;
                                 l = new long[sizeof(long)];
-                                long a = stol(marshall[q].c_str());
+                                long a = stol(marshall[m+j].c_str());
                                 memcpy(l, &a, sizeof(long));
-                                arr[i] = *l;
-                                q++;
+                                arr[j] = *l;
                             }
                             args[i] = (void *)arr;
                             m +=arr_len;

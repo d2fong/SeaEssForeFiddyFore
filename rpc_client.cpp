@@ -250,7 +250,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                             int j;
                             long *l;
                             for(j =0; j < arr_len; j++) {
-                                cout < "LONG ARR LEN IS : " << arr_len << endl;
                                 l = new long[sizeof(long)];
                                 long a = stol(marshall[m+j].c_str());
                                 memcpy(l, &a, sizeof(long));
