@@ -426,7 +426,7 @@ int exec_args(int socket, string key, string arg_s) {
 
 
             for (int i =0; i < arg_length; i++) {
-                delete [] args[i];
+                delete args[i];
             }
             delete [] args;
             return s.send_execute_response(socket, f,key, marshall, res);
