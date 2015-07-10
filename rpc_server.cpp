@@ -280,30 +280,36 @@ int exec_args(int socket, string key, string arg_s) {
 
 
             Args curr_arg;
+            int m =0;
             int data,arr_len,offset;
             for (int i =0; i < arg_info.size(); i++) {
                 curr_arg = arg_info[i];
                 arr_len = curr_arg.get_arr_length();
-                offset = i+arr_len-1;
-                cout << "Marshal[i] " << marshall[i] << endl;
+                cout << "Marshal[i] " << marshall[m] << endl;
                 switch (curr_arg.get_type()) {
                     case ARG_CHAR: {
                         if (arr_len==0) {
                             char *c = new char[sizeof(char)];
-                            memcpy (c,marshall[i].c_str(), sizeof(char));
+                            memcpy (c,marshall[m].c_str(), sizeof(char));
                             args[i] = (void *)c;
+                            m++;
 //                            *(args[i]) = (void *)c;
                         }
                         else {
                             if (curr_arg.get_output()==1) {
-                                char *arr = new char[sizeof(char)*arr_len];
+                                char *arr = new char[sizeof(char)*marshall[m].length()+1];
+                                memcpy (arr,marshall[m].c_str(), marshall[m].length()+1);
+                                arr[marshall[m].length()+1]='\0';
                                 args[i] = (void *)arr;
+                                m++;
                             }
                             else {
-                                string str = append_vector_string(marshall, i, offset);
 //                            cout << "STR" << str << endl;
-                                char *arr = new char[sizeof(char) * arr_len];
-                                memcpy(arr, str.c_str(), sizeof(char) * arr_len);
+                                char *arr = new char[sizeof(char) * marshall[i].length()+1];
+//                                for (int m=0; m < arr_len; m++) {
+//                                    memcpy(arr,marshall[i][m], sizeof(marshall[i][m].l))
+//                                }
+//                                memcpy(arr, marshall[.c_str(), sizeof(char) * arr_len);
                                 arr[arr_len] = '\0';
                                 args[i] = (void *) arr;
                                 i = offset;
@@ -314,87 +320,82 @@ int exec_args(int socket, string key, string arg_s) {
                     case ARG_SHORT: {
                         if (arr_len==0) {
                             short *s = new short[sizeof(short)];
-                            int a = stoi(marshall[i].c_str());
+                            int a = stoi(marshall[m].c_str());
                             memcpy (s,&a, sizeof(short));
                             args[i] = (void *)s;
+                            m++;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             short *arr = new short[sizeof(short)*arr_len];
-                            memcpy (arr,str.c_str(),sizeof(short)*arr_len);
                             args[i] = (void *)arr;
-                            i = offset;
                         }
                         break;
                     }
                     case ARG_INT: {
                         if (arr_len==0) {
                             int *in = new int[sizeof(int)];
-                            int a = stoi(marshall[i].c_str());
+                            int a = stoi(marshall[m].c_str());
                             memcpy (in,&a,sizeof(int));
                             args[i] = (void *)in;
+                            m++;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             int *arr = new int[sizeof(int)*arr_len];
-                            memcpy (arr,str.c_str(),sizeof(int)*arr_len);
                             args[i] = (void *)arr;
-                            i = offset;
                         }
                         break;
                     }
                     case ARG_LONG: {
                         if (arr_len==0) {
                             long *l = new long[sizeof(long)];
-                            long a = stol(marshall[i].c_str());
+                            long a = stol(marshall[m].c_str());
                             memcpy (l,&a, sizeof(long));
                             args[i] = (void *)l;
+                            m++;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             long *arr = new long[sizeof(long)*arr_len];
+                            cout << "LONG ARR LEN" << arr_len << endl;
                             int j;
                             long *l;
+                            int q =m;
                             for(j =0; j < arr_len; j++) {
                                 l = new long[sizeof(long)];
-                                long a = stol(marshall[i].c_str());
+                                long a = stol(marshall[q].c_str());
                                 memcpy(l, &a, sizeof(long));
                                 arr[i] = *l;
+                                q++;
                             }
                             args[i] = (void *)arr;
-                            i = offset;
+                            m +=arr_len;
                         }
                         break;
                     }
                     case ARG_DOUBLE: {
                         if (arr_len==0) {
                             double *d = new double[sizeof(double)];
-                            double a = stod(marshall[i].c_str());
+                            double a = stod(marshall[m].c_str());
                             memcpy (d,&a, sizeof(double));
                             args[i] = (void *)d;
+                            m++;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             double *arr = new double[sizeof(double)*arr_len];
-                            memcpy (arr,str.c_str(),sizeof(double)*arr_len);
                             args[i] = (void *)arr;
-                            i = offset;
                         }
                         break;
                     }
                     case ARG_FLOAT: {
                         if (arr_len==0) {
                             float *f = new float[sizeof(float)];
-                            float a = stof(marshall[i].c_str());
+                            float a = stof(marshall[m].c_str());
                             memcpy (f,&a, sizeof(float));
                             args[i] = (void *)f;
+                            m++;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             float *arr = new float[sizeof(float)*arr_len];
-                            memcpy (arr,str.c_str(),sizeof(float)*arr_len);
                             args[i] = (void *)arr;
-                            i = offset;
                         }
                         break;
                     }
@@ -407,8 +408,8 @@ int exec_args(int socket, string key, string arg_s) {
 
 
             cout << "ARgs[0]" << *((char *) args[0]) << endl;
-            cout << "ARgs[1]" << *((int *) args[1]) << endl;
-            cout << "ARgs[2]" << *((int *) args[2]) << endl;
+//            cout << "ARgs[1]" << *((int *) args[1]) << endl;
+//            cout << "ARgs[2]" << *((int *) args[2]) << endl;
 
 
             skeleton q = server_db.lookup[key];
@@ -418,8 +419,8 @@ int exec_args(int socket, string key, string arg_s) {
                 res = ERR_INVALID_ARGS;
             }
             cout << "Skeleton: result : " << res << endl;
-            cout << "ARgs[0] After " << ((char *) args[0]) << endl;
-            //cout << "ARgs[1] After " << *((int *) args[1]) << endl;
+            cout << "ARgs[0] After " << ((long *) args[0]) << endl;
+//            cout << "ARgs[1] After " << *((int *) args[1]) << endl;
 
             string marshall = server_marshall_args(f.get_argtypes(), args, arg_length);
             cout << "MARSHALL: " << marshall << endl;

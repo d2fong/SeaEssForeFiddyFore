@@ -167,22 +167,28 @@ int rpcCall(char* name, int* argTypes, void** args) {
 //            void**args = (void**)malloc(sizeof(void*)* arg_info.size());
             Args curr_arg;
             int data,arr_len,offset;
+            int m =0;
             for (int i =0; i < arg_info.size(); i++) {
                 curr_arg = arg_info[i];
                 arr_len = curr_arg.get_arr_length();
                 offset = i+arr_len-1;
-                cout << "Marshal[i] " << marshall[i] << endl;
+                cout << "Marshal[i] " << marshall[m] << endl;
                 switch (curr_arg.get_type()) {
                     case ARG_CHAR: {
                         if (arr_len==0) {
                             char *c = new char[sizeof(char)];
-                            memcpy (c,marshall[i].c_str(), sizeof(char));
+                            memcpy (c,marshall[m].c_str(), sizeof(char));
                             args[i] = (void *)c;
+                            m++;
                         }
                         else {
                             if (curr_arg.get_output()==1) {
-                                char *arr = new char[sizeof(char)*arr_len];
+                                char *arr = new char[sizeof(char)*marshall[m].length()+1];
+                                memcpy (arr,marshall[i].c_str(), marshall[m].length()+1);
+                                arr[marshall[m].length()+1]='\0';
                                 args[i] = (void *)arr;
+                                m++;
+                                cout << ((char *) args[0]) << endl;
                             }
                             else {
                                 string str = append_vector_string(marshall, i, offset);
@@ -199,9 +205,10 @@ int rpcCall(char* name, int* argTypes, void** args) {
                     case ARG_SHORT: {
                         if (arr_len==0) {
                             short *s = new short[sizeof(short)];
-                            int a = stoi(marshall[i].c_str());
+                            int a = stoi(marshall[m].c_str());
                             memcpy (s,&a, sizeof(short));
                             args[i] = (void *)s;
+                            m++;
                         }
                         else {
                             string str = append_vector_string(marshall,i, offset);
@@ -215,10 +222,11 @@ int rpcCall(char* name, int* argTypes, void** args) {
                     case ARG_INT: {
                         if (arr_len==0) {
                             int *in = new int[sizeof(int)];
-                            int a = stoi(marshall[i].c_str());
+                            int a = stoi(marshall[m].c_str());
                             cout << "string to int a " << a << endl;
                             memcpy(in, &a, sizeof(int));
                             args[i] = (void *) in;
+                            m++;
                         }
                         else {
                             string str = append_vector_string(marshall,i, offset);
@@ -232,32 +240,33 @@ int rpcCall(char* name, int* argTypes, void** args) {
                     case ARG_LONG: {
                         if (arr_len==0) {
                             long *l = new long[sizeof(long)];
-                            long a = stol(marshall[i].c_str());
+                            long a = stol(marshall[m].c_str());
                             memcpy (l,&a, sizeof(long));
                             args[i] = (void *)l;
+                            m++;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             long *arr = new long[sizeof(long)*arr_len];
                             int j;
                             long *l;
                             for(j =0; j < arr_len; j++) {
                                 l = new long[sizeof(long)];
-                                long a = stol(marshall[i].c_str());
+                                long a = stol(marshall[m].c_str());
                                 memcpy(l, &a, sizeof(long));
                                 arr[i] = *l;
                             }
                             args[i] = (void *)arr;
-                            i = offset;
+                            m +=arr_len;
                         }
                         break;
                     }
                     case ARG_DOUBLE: {
                         if (arr_len==0) {
                             double *d = new double[sizeof(double)];
-                            double a = stod(marshall[i].c_str());
+                            double a = stod(marshall[m].c_str());
                             memcpy (d,&a, sizeof(double));
                             args[i] = (void *)d;
+                            m++;
                             cout << "Arg " << *(double*)args[i] << endl;
                         }
                         else {
@@ -272,9 +281,10 @@ int rpcCall(char* name, int* argTypes, void** args) {
                     case ARG_FLOAT: {
                         if (arr_len==0) {
                             float *f = new float[sizeof(float)];
-                            float a = stof(marshall[i].c_str());
+                            float a = stof(marshall[m].c_str());
                             memcpy (f,&a, sizeof(float));
                             args[i] = (void *)f;
+                            m++;
                             cout << "Arg " << *(float*)args[i] << endl;
                         }
                         else {
