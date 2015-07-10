@@ -26,15 +26,9 @@ public:
     int get_port();
 
     RegisterMessage create_register_message(Function f);
-    Message create_execute_success_message(char* funcName, int* argTypes, void** args);
-    Message create_execute_failure_message(int reasonCode);
-
 
     int send_register_request(RegisterMessage m, int binderSocket);
-    void send_execute_request(Message m);
-
-    Message receive_register_request();
-    Message receive_execute_request();
+    int send_execute_response(int socket, Function f, string key, string marshall, int reason_code);
 
 
 };

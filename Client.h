@@ -1,7 +1,3 @@
-//
-// Created by Dylan Fong on 2015-07-05.
-//
-
 #ifndef CS454A3_CLIENT_H
 #define CS454A3_CLIENT_H
 
@@ -42,10 +38,10 @@ public:
     int send_execute_request(int serverSocket, char* name, int* argTypes, void**args);
 
     //Receive the location response message
-    Message receive_location_response();
+    int receive_location_response();
 
     //Receive the execute response message
-    Message receive_execute_response();
+    int receive_execute_response(void *** argTypes);
 
 };
 
