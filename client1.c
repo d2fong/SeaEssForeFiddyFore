@@ -146,7 +146,10 @@ int main() {
   printf("\nEXPECTED return of f2 is: 31234\n");
   if (s2 >= 0) {
     printf ("Before deref");
+    printf("ACTUAL return of f2 is: %f\n", (float *)args2[1]);
+    printf("ACTUAL return of f2 is: %d\n", (double *)args2[2]);
     printf("ACTUAL return of f2 is: %s\n", (char *)args2[0]);
+
   }
   else {
     printf("Error: %d\n", s2);

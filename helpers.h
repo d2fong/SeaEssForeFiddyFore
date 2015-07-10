@@ -19,6 +19,7 @@ int create_connection_socket(unsigned short portnum, unsigned short* ret_port, c
 int connect_to(char* addr, char* port);
 vector<string> split(const string &text, char sep);
 string marshall_args (int * argTypes, void **args, int arg_length) ;
+string server_marshall_args (int * argTypes, void **args, int arg_length) ;
 string to_stri(int i);
 int calculate_arg_size(vector<Args> arg_info);
 int unmarshall_args (void ***args, vector<Args> arg_info, vector<string>marshall);

@@ -7,6 +7,7 @@
 #include <sys/select.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <sstream>
 
 
 
@@ -262,6 +263,7 @@ int exec_args(int socket, string key, string arg_s) {
     int index=2;
     for (int i=0; i < arg_length; i++) {
         arg_info.push_back(Args(stoi(key_s[index]),stoi(key_s[index+1]),stoi(key_s[index+2]), stoi(key_s[index+3])));
+        cout << arg_info[i].get_type() << endl;
         index+=4;
     }
     cout << "unmarshall args " << endl;
@@ -274,8 +276,9 @@ int exec_args(int socket, string key, string arg_s) {
 //            void **args;
 
             void** args = (void**)malloc(sizeof(void*) * arg_info.size());
+            cout << "MARSHALL BEFORE UNMARSHALL : " <<  arg_s << endl;
 
-//            int a= unmarshall_args(&args,arg_info, args_s);
+
             Args curr_arg;
             int data,arr_len,offset;
             for (int i =0; i < arg_info.size(); i++) {
@@ -290,17 +293,21 @@ int exec_args(int socket, string key, string arg_s) {
                             memcpy (c,marshall[i].c_str(), sizeof(char));
                             args[i] = (void *)c;
 //                            *(args[i]) = (void *)c;
-
-
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
-                            char *arr = new char[sizeof(char)*arr_len];
-                            memcpy (arr,str.c_str(),sizeof(char)*arr_len+1);
-                            arr[arr_len]= '\0';
-                            args[i] = (void *)arr;
-//                            *(args[i]) = (void *)arr;
-                            i = offset;
+                            if (curr_arg.get_output()==1) {
+                                char *arr = new char[sizeof(char)*arr_len];
+                                args[i] = (void *)arr;
+                            }
+                            else {
+                                string str = append_vector_string(marshall, i, offset);
+//                            cout << "STR" << str << endl;
+                                char *arr = new char[sizeof(char) * arr_len];
+                                memcpy(arr, str.c_str(), sizeof(char) * arr_len);
+                                arr[arr_len] = '\0';
+                                args[i] = (void *) arr;
+                                i = offset;
+                            }
                         }
                         break;
                     }
@@ -398,7 +405,8 @@ int exec_args(int socket, string key, string arg_s) {
                 }
             }
 
-            cout << "ARgs[0]" << *((int *) args[0]) << endl;
+
+            cout << "ARgs[0]" << *((char *) args[0]) << endl;
             cout << "ARgs[1]" << *((int *) args[1]) << endl;
             cout << "ARgs[2]" << *((int *) args[2]) << endl;
 
@@ -406,15 +414,17 @@ int exec_args(int socket, string key, string arg_s) {
             skeleton q = server_db.lookup[key];
             cout << "Got skeleton" << endl;
             res = (*q)(f.get_argtypes(), args);
-            cout << "ARgs[0] After " << *((int *) args[0]) << endl;
-            cout << "ARgs[1] After " << *((int *) args[1]) << endl;
-
-            string marshall = marshall_args(f.get_argtypes(), args, arg_length);
-            cout << "MARSHALL: " << marshall << endl;
             if (res != 0) {
                 res = ERR_INVALID_ARGS;
             }
             cout << "Skeleton: result : " << res << endl;
+            cout << "ARgs[0] After " << ((char *) args[0]) << endl;
+            //cout << "ARgs[1] After " << *((int *) args[1]) << endl;
+
+            string marshall = server_marshall_args(f.get_argtypes(), args, arg_length);
+            cout << "MARSHALL: " << marshall << endl;
+
+
             for (int i =0; i < arg_length; i++) {
                 delete [] args[i];
             }

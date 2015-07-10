@@ -169,6 +169,7 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
     string buff="";
     int curr_index=0;
     for (int i =0; i < arg_length; i++) {
+        cout << "ARR LENGTH " << a[i].get_arr_length() << endl;
         switch (a[i].get_type()) {
             case ARG_CHAR: {
                 if (a[i].get_arr_length()==0) {
@@ -176,7 +177,13 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 }
                 else {
                     for (int  m=0; m < a[i].get_arr_length();m++) {
-                        s << ((char *)(args[i]))[m] << "|";
+                        if (a[i].get_input()==1 ) {
+                            s << ((char *) (args[i]))[m] << "|";
+                        }
+                        else {
+                            s << "ao" << "|";
+                            break;
+                        }
                     }
                 }
                 break;
@@ -462,4 +469,102 @@ int calculate_arg_size(vector<Args> arg_info) {
         }
     }
     return size;
+}
+
+
+string server_marshall_args (int * argTypes, void **args, int arg_length) {
+
+    vector <Args> a;
+    for (int i =0; i < arg_length; i++) {
+        a.push_back(Args(argTypes[i]));
+        cout << "TYPE: " << a[i].get_type() << endl;
+    }
+    cout << "Marshall_args: Vector<Args> size " << a.size() << endl;
+    int m =0;
+    while(args[m++]);
+    cout << "Marshall_args: **args size " << m << endl;
+    cout << "Marshall_args: arg_length " << arg_length << endl;
+    stringstream  s;
+    string buff="";
+    int curr_index=0;
+    for (int i =0; i < arg_length; i++) {
+        cout << "ARR LENGTH " << a[i].get_arr_length() << endl;
+        switch (a[i].get_type()) {
+            case ARG_CHAR: {
+                if (a[i].get_arr_length()==0) {
+                    s << *((char*) (args[i])) << "|";
+                }
+                else {
+                    s << (char *) (args[i]) << "|";
+                }
+                break;
+            }
+            case ARG_SHORT: {
+                if (a[i].get_arr_length()==0) {
+                    s << *((short*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((short *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_INT: {
+                if (a[i].get_arr_length()==0) {
+//                    cout << "A" << endl;
+                    s << *((int*) (args[i])) << "|";
+//                    cout << "B" << endl;
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((int *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_LONG: {
+                if (a[i].get_arr_length()==0) {
+                    s << *((long*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((long *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_DOUBLE: {
+                if (a[i].get_arr_length()==0) {
+                    s << *((double*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((double *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            case ARG_FLOAT: {
+                if (a[i].get_arr_length()==0) {
+                    s << *((float*) (args[i])) << "|";
+                }
+                else {
+                    for (int  m=0; m < a[i].get_arr_length();m++) {
+                        s << ((float *)(args[i]))[m] << "|";
+                    }
+                }
+                break;
+            }
+            default: {
+                cout << "Got into default" << endl;
+                return "";
+            }
+                cout << "S" << endl;
+        }
+    }
+    cout << "No seg in marshall_args" << endl;
+
+    string ret = s.str();
+    return ret.substr(0, ret.size()-1);
 }
