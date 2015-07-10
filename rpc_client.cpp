@@ -164,7 +164,7 @@ int rpcCall(char* name, int* argTypes, void** args) {
 //            delete [] args;
 
 
-            void**args = (void**)malloc(sizeof(void*)* arg_info.size());
+//            void**args = (void**)malloc(sizeof(void*)* arg_info.size());
             Args curr_arg;
             int data,arr_len,offset;
             for (int i =0; i < arg_info.size(); i++) {
@@ -216,8 +216,10 @@ int rpcCall(char* name, int* argTypes, void** args) {
                         if (arr_len==0) {
                             int *in = new int[sizeof(int)];
                             int a = stoi(marshall[i].c_str());
-                            memcpy (in,&a,sizeof(int));
-                            args[i] = (void *)in;
+                            cout << "string to int a " << a << endl;
+                            memcpy(in, &a, sizeof(int));
+                            *(args + (i * sizeof(void *))) = (void *) in;
+                            cout << *(int *) *(args + (i * sizeof(void *))) << endl;
                         }
                         else {
                             string str = append_vector_string(marshall,i, offset);
@@ -291,10 +293,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                     }
                 }
             }
-            for (int i = 0;  i < arg_info.size(); i++) {
-                cout << *((char *) args[i]) << endl;
-            }
-
             return 0;
         }
     }
