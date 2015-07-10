@@ -415,6 +415,9 @@ int exec_args(int socket, string key, string arg_s) {
                 res = ERR_INVALID_ARGS;
             }
             cout << "Skeleton: result : " << res << endl;
+            for (int i =0; i < arg_length; i++) {
+                delete [] args[i];
+            }
             delete [] args;
             return s.send_execute_response(socket, f,key, marshall, res);
         }
