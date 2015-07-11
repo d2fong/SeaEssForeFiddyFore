@@ -332,4 +332,22 @@ int rpcCall(char* name, int* argTypes, void** args) {
     return 0;
 }
 
+int rpcTerminate() {
+
+    if (c.get_binder_socket() == -1) {
+        char *binderAddr = getenv("BINDER_ADDRESS");
+        char *binderPort = getenv("BINDER_PORT");
+        c.connect_to_something(binderAddr, binderPort);
+    }
+
+    int mType = htonl(TERMINATE);
+    int expected = 4;
+    int r = send_all(c.get_binder_socket(),(char*) &mType,&expected);
+    if ( r < 0) {
+        cout << "Couldn't send termiante request" << endl;
+        return r;
+    }
+    return 0;
+}
+
 

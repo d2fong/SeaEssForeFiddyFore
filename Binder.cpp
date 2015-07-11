@@ -59,7 +59,7 @@ int Binder::receive_register_request (int socket, int length) {
     return send_register_response(socket,ret_update);
 }
 
-int Binder::handle_request(int socket, int type) {
+int Binder::handle_request(int socket, int type, fd_set *master) {
     int m_len = 0;
     int recv_length = 0;
 
@@ -90,7 +90,10 @@ int Binder::handle_request(int socket, int type) {
            break;
        }
         case TERMINATE: {
-            shutdown_everything();
+            int a= shutdown_everything(master);
+            if (a == 0) {
+                exit(0);
+            }
         }
 //        default:
 //            retVal = -1;
@@ -114,7 +117,7 @@ int Binder::init() {
     print_status();
 
 
-    fd_set master;    // master file descriptor list
+        fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()
     int fdmax;        // maximum file descriptor number
 
@@ -200,7 +203,7 @@ int Binder::init() {
                         FD_CLR(i, &master); // remove from master set
                     }
                     else {
-                        int r = handle_request(i,ntohl(messageType));
+                        int r = handle_request(i,ntohl(messageType), &master);
                         if (r < 0) {
                             cout << "We errd in Binder" << endl;
                         }
@@ -214,6 +217,30 @@ int Binder::init() {
 
 int Binder::update_binder_dbs(int socket) {
     ServerInfo s = binder_db.socket_map[socket];
+    string key = "";
+    vector<ServerInfo> v;
+    typedef map<string, vector<ServerInfo> >::iterator it_type;
+    int index = -1;
+    for (it_type it = binder_db.lookup.begin(); it!= binder_db.lookup.end(); it++) {
+        key = it->first;
+        v = it->second;
+        for(vector<ServerInfo>::size_type i = 0; i != v.size(); i++) {
+            if (s.host == v[i].host && s.port == v[i].port) {
+                index = i;
+                break;
+            }
+        }
+    }
+
+    map<int, ServerInfo>::iterator it;
+    if (index != -1) {
+        it = binder_db.socket_map.find(socket);
+        binder_db.socket_map.erase(it);
+        binder_db.lookup[key].erase(binder_db.lookup[key].begin() + index);
+
+    }
+
+
     return 0;
 }
 
@@ -289,19 +316,22 @@ int Binder::receive_location_request(int socket, int length) {
     return send_location_response(socket, key);
 }
 
-int Binder::shutdown_everything() {
+int Binder::shutdown_everything(fd_set* master) {
 
     typedef map<int, ServerInfo>::iterator it_type;
+    int key =0;
     for (it_type it = binder_db.socket_map.begin(); it!= binder_db.socket_map.end(); it++) {
         int m_type = htonl(TERMINATE);
         int expect = 4;
-        int key = it->first;
+        key = it->first;
 
         int r = send_all(key, (char*) &m_type, &expect);
         if (r < 0) {
             return ERR_TERMINATING;
         }
-
+        close(key);
+        FD_CLR(key,master);
     }
+
     return 0;
 }

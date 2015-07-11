@@ -183,7 +183,7 @@ int main() {
 //  /* rpcTerminate */
   printf("\ndo you want to terminate? y/n: ");
   if (getchar() == 'y')
-//    rpcTerminate();
+    rpcTerminate();
 
   /* end of client.c */
   return 0;
