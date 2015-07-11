@@ -55,7 +55,7 @@ int Binder::receive_register_request (int socket, int length) {
 //    cout << "Port: " << ntohl(port) << endl;
 //    cout << "Key: " << key << endl;
 
-    int ret_update = binder_db.update_db(f_name, s_name, ntohl(port), key);
+    int ret_update = binder_db.update_db(f_name, s_name, ntohl(port), key, socket);
     return send_register_response(socket,ret_update);
 }
 
@@ -89,6 +89,9 @@ int Binder::handle_request(int socket, int type) {
            }
            break;
        }
+        case TERMINATE: {
+            shutdown_everything();
+        }
 //        default:
 //            retVal = -1;
 //            break;
@@ -182,6 +185,14 @@ int Binder::init() {
                         if (nbytes == 0) {
                             // connection closed
                             printf("selectserver: socket %d hung up\n", i);
+                            if (binder_db.socket_map.find(i) != binder_db.socket_map.end()) {
+                                int i =update_binder_dbs(i);
+                                if (i < 0) {
+                                    cout << "Binder db update failure" << endl;
+                                }
+                            }
+
+
                         } else {
                             perror("recv");
                         }
@@ -198,6 +209,12 @@ int Binder::init() {
             }
         }
     }
+}
+
+
+int Binder::update_binder_dbs(int socket) {
+    ServerInfo s = binder_db.socket_map[socket];
+    return 0;
 }
 
 void Binder::print_status() {
@@ -270,4 +287,21 @@ int Binder::receive_location_request(int socket, int length) {
     cout << "Key" << key << endl;
     cout << "Key size" << key_size << endl;
     return send_location_response(socket, key);
+}
+
+int Binder::shutdown_everything() {
+
+    typedef map<int, ServerInfo>::iterator it_type;
+    for (it_type it = binder_db.socket_map.begin(); it!= binder_db.socket_map.end(); it++) {
+        int m_type = htonl(TERMINATE);
+        int expect = 4;
+        int key = it->first;
+
+        int r = send_all(key, (char*) &m_type, &expect);
+        if (r < 0) {
+            return ERR_TERMINATING;
+        }
+
+    }
+    return 0;
 }

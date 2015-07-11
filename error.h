@@ -31,4 +31,6 @@
 
 #define ERR_INVALID_ARGS -13
 #define ERR_RECV_CLIENT -14
+
+#define ERR_TERMINATING -15
 #endif

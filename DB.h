@@ -68,8 +68,9 @@ public:
 class BinderDB {
 public:
     map<string, vector<ServerInfo> > lookup;
+    map <int, ServerInfo> socket_map;
     BinderDB() {}
-    int update_db(string f_name, string s_name, int port, string key);
+    int update_db(string f_name, string s_name, int port, string key, int socket);
 };
 
 

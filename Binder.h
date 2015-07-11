@@ -21,6 +21,7 @@ public:
     Binder() {
     }
 
+
     int init();
     int receive_register_request(int socket, int length);
     int send_register_response(int socket, int flag);
@@ -31,6 +32,8 @@ public:
     LocationSuccessMessage create_location_success_message(char* serverAddr, char* serverPort);
     LocationFailureMessage create_location_failure_message(int reasonCode);
 
+    int shutdown_everything();
+    int update_binder_dbs(int socket);
 
 
 };

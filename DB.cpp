@@ -22,9 +22,15 @@ int ServerDB::update_db(int flag, Function func, skeleton f) {
 }
 
 
-int BinderDB::update_db(string f_name, string s_name, int port, string key) {
+int BinderDB::update_db(string f_name, string s_name, int port, string key, int socket) {
     ServerInfo s = ServerInfo(s_name,port);
     vector<ServerInfo> servers;
+
+    if (socket_map.find(socket) == socket_map.end()) {
+        socket_map.insert(map<int, ServerInfo>::value_type(socket, s));
+    }
+
+
     if (lookup.find(key) == lookup.end()) {
         vector <ServerInfo> s_info;
         s_info.push_back(s);

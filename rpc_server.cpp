@@ -130,9 +130,10 @@ int rpcExecute() {
 
     // add the listener to the master set
     FD_SET(listener, &master);
+    FD_SET(s.get_binder_socket(), &master);
 
     // keep track of the biggest file descriptor
-    fdmax = listener; // so far, it's this one
+    fdmax = max(listener, s.get_binder_socket()); // so far, it's this one
 
     // main loop
     for(;;)
@@ -241,6 +242,13 @@ int handle_request (int socket, int messageType) {
             cout << "ARG LENGTH" << n_args_len << endl;
             delete [] buff;
             return exec_args(socket,key, args);
+        }
+        case TERMINATE: {
+            if (socket == s.get_binder_socket()) {
+                close (s.get_binder_socket());
+                close (s.get_client_socket());
+                exit(0);
+            }
         }
         default: {
             return 0;
