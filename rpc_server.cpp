@@ -293,7 +293,6 @@ int exec_args(int socket, string key, string arg_s) {
                             memcpy (c,marshall[m].c_str(), sizeof(char));
                             args[i] = (void *)c;
                             m++;
-//                            *(args[i]) = (void *)c;
                         }
                         else {
                             if (curr_arg.get_output()==1) {
@@ -326,13 +325,13 @@ int exec_args(int socket, string key, string arg_s) {
                             m++;
                         }
                         else {
-                            int *arr = new int[sizeof(int)*arr_len];
+                            short *arr = new short[sizeof(short)*arr_len];
                             int j;
-                            int *a;
+                            short *a;
                             for(j =0; j < arr_len; j++) {
-                                a = new int[sizeof(int)];
-                                int aa = stol(marshall[m+j].c_str());
-                                memcpy(a, &aa, sizeof(int));
+                                a = new short[sizeof(short)];
+                                int aa = stoi(marshall[m+j].c_str());
+                                memcpy(a, &aa, sizeof(short));
                                 arr[j] = *a;
                                 cout << arr[j] << endl;
                             }
@@ -355,7 +354,7 @@ int exec_args(int socket, string key, string arg_s) {
                             int *a;
                             for(j =0; j < arr_len; j++) {
                                 a = new int[sizeof(int)];
-                                int aa = stol(marshall[m+j].c_str());
+                                int aa = stoi(marshall[m+j].c_str());
                                 memcpy(a, &aa, sizeof(int));
                                 arr[j] = *a;
                                 cout << arr[j] << endl;
@@ -379,7 +378,6 @@ int exec_args(int socket, string key, string arg_s) {
                             int j;
                             long *l;
                             for(j =0; j < arr_len; j++) {
-                                cout << "LONG ARRAY LENGTH IS " << arr_len << endl;
                                 l = new long[sizeof(long)];
                                 long a = stol(marshall[m+j].c_str());
                                 memcpy(l, &a, sizeof(long));

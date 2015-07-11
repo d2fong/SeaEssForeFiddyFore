@@ -156,15 +156,7 @@ int rpcCall(char* name, int* argTypes, void** args) {
             }
 
 
-//            int arg_size= calculate_arg_size(arg_info);
-//            cout << "ArgInfo size " << arg_info.size() << endl;
-//            for (int i =0; i < arg_length; i++) {
-//                delete [] args[i];
-//            }
-//            delete [] args;
 
-
-//            void**args = (void**)malloc(sizeof(void*)* arg_info.size());
             Args curr_arg;
             int data,arr_len,offset;
             int m =0;
