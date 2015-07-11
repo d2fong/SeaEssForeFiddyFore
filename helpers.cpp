@@ -177,12 +177,12 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 }
                 else {
                     for (int  m=0; m < a[i].get_arr_length();m++) {
-                        if (a[i].get_input()==1 ) {
-                            s << ((char *) (args[i]))[m] << "|";
-                        }
-                        else {
+                        if (a[i].get_input()==0 && a[i].get_output()==1) {
                             s << "ao" << "|";
                             break;
+                        }
+                        else {
+                            s << ((char *) (args[i]))[m] << "|";
                         }
                     }
                 }
@@ -194,20 +194,30 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 }
                 else {
                     for (int  m=0; m < a[i].get_arr_length();m++) {
-                        s << ((short *)(args[i]))[m] << "|";
+                        if (a[i].get_input()==0 && a[i].get_output()==1) {
+                            s << "ao" << "|";
+                            break;
+                        }
+                        else {
+                            s << ((short *) (args[i]))[m] << "|";
+                        }
                     }
                 }
                 break;
             }
             case ARG_INT: {
                 if (a[i].get_arr_length()==0) {
-//                    cout << "A" << endl;
                     s << *((int*) (args[i])) << "|";
-//                    cout << "B" << endl;
                 }
                 else {
                     for (int  m=0; m < a[i].get_arr_length();m++) {
-                        s << ((int *)(args[i]))[m] << "|";
+                        if (a[i].get_input()==0 && a[i].get_output()==1) {
+                            s << "ao" << "|";
+                            break;
+                        }
+                        else {
+                            s << ((int *) (args[i]))[m] << "|";
+                        }
                     }
                 }
                 break;
@@ -218,7 +228,13 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 }
                 else {
                     for (int  m=0; m < a[i].get_arr_length();m++) {
-                        s << ((long *)(args[i]))[m] << "|";
+                        if (a[i].get_input()==0 && a[i].get_output()==1) {
+                            s << "ao" << "|";
+                            break;
+                        }
+                        else {
+                            s << ((long *) (args[i]))[m] << "|";
+                        }
                     }
                 }
                 break;
@@ -229,7 +245,13 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 }
                 else {
                     for (int  m=0; m < a[i].get_arr_length();m++) {
-                        s << ((double *)(args[i]))[m] << "|";
+                        if (a[i].get_input()==0 && a[i].get_output()==1) {
+                            s << "ao" << "|";
+                            break;
+                        }
+                        else {
+                            s << ((double *) (args[i]))[m] << "|";
+                        }
                     }
                 }
                 break;
@@ -240,7 +262,13 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 }
                 else {
                     for (int  m=0; m < a[i].get_arr_length();m++) {
-                        s << ((float *)(args[i]))[m] << "|";
+                        if (a[i].get_input()==0 && a[i].get_output()==1) {
+                            s << "ao" << "|";
+                            break;
+                        }
+                        else {
+                            s << ((float *) (args[i]))[m] << "|";
+                        }
                     }
                 }
                 break;

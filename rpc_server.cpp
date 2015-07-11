@@ -295,23 +295,22 @@ int exec_args(int socket, string key, string arg_s) {
                             m++;
                         }
                         else {
-                            if (curr_arg.get_output()==1) {
-                                char *arr = new char[sizeof(char)*marshall[m].length()+1];
-                                memcpy (arr,marshall[m].c_str(), marshall[m].length()+1);
-                                arr[marshall[m].length()+1]='\0';
+                            if (curr_arg.get_output()==1 && curr_arg.get_input()==0) {
+                                char *arr = new char[sizeof(char)*arr_len+1];
                                 args[i] = (void *)arr;
                                 m++;
                             }
                             else {
-//                            cout << "STR" << str << endl;
-                                char *arr = new char[sizeof(char) * marshall[i].length()+1];
-//                                for (int m=0; m < arr_len; m++) {
-//                                    memcpy(arr,marshall[i][m], sizeof(marshall[i][m].l))
-//                                }
-//                                memcpy(arr, marshall[.c_str(), sizeof(char) * arr_len);
-                                arr[arr_len] = '\0';
-                                args[i] = (void *) arr;
-                                i = offset;
+                                char *arr = new char[sizeof(char)*arr_len];
+                                int j;
+                                char *a;
+                                for(j =0; j < arr_len; j++) {
+                                    a = new char[sizeof(char)];
+                                    memcpy (a, marshall[m+j].c_str(), sizeof(char));
+                                    arr[j] = *a;
+                                }
+                                args[i] = (void *)arr;
+                                m +=arr_len;
                             }
                         }
                         break;
@@ -325,18 +324,25 @@ int exec_args(int socket, string key, string arg_s) {
                             m++;
                         }
                         else {
-                            short *arr = new short[sizeof(short)*arr_len];
-                            int j;
-                            short *a;
-                            for(j =0; j < arr_len; j++) {
-                                a = new short[sizeof(short)];
-                                int aa = stoi(marshall[m+j].c_str());
-                                memcpy(a, &aa, sizeof(short));
-                                arr[j] = *a;
-                                cout << arr[j] << endl;
+                            if (curr_arg.get_output()==1 && curr_arg.get_input()==0) {
+                                short *arr = new short[sizeof(short)*arr_len];
+                                args[i] = (void *)arr;
+                                m++;
                             }
-                            args[i] = (void *)arr;
-                            m +=arr_len;
+                            else {
+                                short *arr = new short[sizeof(short) * arr_len];
+                                int j;
+                                short *a;
+                                for (j = 0; j < arr_len; j++) {
+                                    a = new short[sizeof(short)];
+                                    int aa = stoi(marshall[m + j].c_str());
+                                    memcpy(a, &aa, sizeof(short));
+                                    arr[j] = *a;
+                                    cout << arr[j] << endl;
+                                }
+                                args[i] = (void *) arr;
+                                m += arr_len;
+                            }
                         }
                         break;
                     }
@@ -349,18 +355,25 @@ int exec_args(int socket, string key, string arg_s) {
                             m++;
                         }
                         else {
-                            int *arr = new int[sizeof(int)*arr_len];
-                            int j;
-                            int *a;
-                            for(j =0; j < arr_len; j++) {
-                                a = new int[sizeof(int)];
-                                int aa = stoi(marshall[m+j].c_str());
-                                memcpy(a, &aa, sizeof(int));
-                                arr[j] = *a;
-                                cout << arr[j] << endl;
+                            if (curr_arg.get_output()==1 && curr_arg.get_input()==0) {
+                                int *arr = new int[sizeof(int)*arr_len];
+                                args[i] = (void *)arr;
+                                m++;
                             }
-                            args[i] = (void *)arr;
-                            m +=arr_len;
+                            else {
+                                int *arr = new int[sizeof(int) * arr_len];
+                                int j;
+                                int *a;
+                                for (j = 0; j < arr_len; j++) {
+                                    a = new int[sizeof(int)];
+                                    int aa = stoi(marshall[m + j].c_str());
+                                    memcpy(a, &aa, sizeof(int));
+                                    arr[j] = *a;
+                                    cout << arr[j] << endl;
+                                }
+                                args[i] = (void *) arr;
+                                m += arr_len;
+                            }
                         }
                         break;
                     }
@@ -373,18 +386,26 @@ int exec_args(int socket, string key, string arg_s) {
                             m++;
                         }
                         else {
-                            long *arr = new long[sizeof(long)*arr_len];
-                            cout << "LONG ARR LEN" << arr_len << endl;
-                            int j;
-                            long *l;
-                            for(j =0; j < arr_len; j++) {
-                                l = new long[sizeof(long)];
-                                long a = stol(marshall[m+j].c_str());
-                                memcpy(l, &a, sizeof(long));
-                                arr[j] = *l;
+                            if (curr_arg.get_output()==1 && curr_arg.get_input()==0) {
+                                cout << "Long array here" << endl;
+                                long *arr = new long[sizeof(long)*arr_len];
+                                args[i] = (void *)arr;
+                                m++;
                             }
-                            args[i] = (void *)arr;
-                            m +=arr_len;
+                            else {
+                                long *arr = new long[sizeof(long) * arr_len];
+                                cout << "LONG ARR LEN" << arr_len << endl;
+                                int j;
+                                long *l;
+                                for (j = 0; j < arr_len; j++) {
+                                    l = new long[sizeof(long)];
+                                    long a = stol(marshall[m + j].c_str());
+                                    memcpy(l, &a, sizeof(long));
+                                    arr[j] = *l;
+                                }
+                                args[i] = (void *) arr;
+                                m += arr_len;
+                            }
                         }
                         break;
                     }
@@ -397,18 +418,25 @@ int exec_args(int socket, string key, string arg_s) {
                             m++;
                         }
                         else {
-                            double *arr = new double[sizeof(double)*arr_len];
-                            int j;
-                            double* d;
-                            for(j =0; j < arr_len; j++) {
-                                d = new double[sizeof(double)];
-                                double dd = stod(marshall[m+j].c_str());
-                                memcpy(d, &dd, sizeof(double));
-                                arr[j] = *d;
-                                cout << arr[j] << endl;
+                            if (curr_arg.get_output()==1 && curr_arg.get_input()==0) {
+                                double *arr = new double[sizeof(double)*arr_len];
+                                args[i] = (void *)arr;
+                                m++;
                             }
-                            args[i] = (void *)arr;
-                            m =+arr_len;
+                            else {
+                                double *arr = new double[sizeof(double) * arr_len];
+                                int j;
+                                double *d;
+                                for (j = 0; j < arr_len; j++) {
+                                    d = new double[sizeof(double)];
+                                    double dd = stod(marshall[m + j].c_str());
+                                    memcpy(d, &dd, sizeof(double));
+                                    arr[j] = *d;
+                                    cout << arr[j] << endl;
+                                }
+                                args[i] = (void *) arr;
+                                m = +arr_len;
+                            }
                         }
                         break;
                     }
@@ -421,18 +449,25 @@ int exec_args(int socket, string key, string arg_s) {
                             m++;
                         }
                         else {
-                            float *arr = new float[sizeof(float)*arr_len];
-                            int j;
-                            float* f;
-                            for(j =0; j < arr_len; j++) {
-                                f = new float[sizeof(float)];
-                                float ff = stof(marshall[m+j].c_str());
-                                memcpy(f, &ff, sizeof(float));
-                                arr[j] = *f;
-                                cout << arr[j] << endl;
+                            if (curr_arg.get_output()==1 && curr_arg.get_input()==0) {
+                                float *arr = new float[sizeof(float)*arr_len];
+                                args[i] = (void *)arr;
+                                m++;
                             }
-                            args[i] = (void *)arr;
-                            m =+arr_len;
+                            else {
+                                float *arr = new float[sizeof(float) * arr_len];
+                                int j;
+                                float *f;
+                                for (j = 0; j < arr_len; j++) {
+                                    f = new float[sizeof(float)];
+                                    float ff = stof(marshall[m + j].c_str());
+                                    memcpy(f, &ff, sizeof(float));
+                                    arr[j] = *f;
+                                    cout << arr[j] << endl;
+                                }
+                                args[i] = (void *) arr;
+                                m = +arr_len;
+                            }
                         }
                         break;
                     }
@@ -442,12 +477,6 @@ int exec_args(int socket, string key, string arg_s) {
                     }
                 }
             }
-
-
-            cout << "ARgs[0]" << *((char *) args[0]) << endl;
-//            cout << "ARgs[1]" << *((int *) args[1]) << endl;
-//            cout << "ARgs[2]" << *((int *) args[2]) << endl;
-
 
             skeleton q = server_db.lookup[key];
             cout << "Got skeleton" << endl;

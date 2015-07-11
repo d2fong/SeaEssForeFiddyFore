@@ -180,7 +180,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                                 arr[marshall[m].length()+1]='\0';
                                 args[i] = (void *)arr;
                                 m++;
-                                cout << ((char *) args[0]) << endl;
                             }
                             else {
                                 string str = append_vector_string(marshall, i, offset);
