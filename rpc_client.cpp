@@ -211,11 +211,18 @@ int rpcCall(char* name, int* argTypes, void** args) {
                             m++;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             short *arr = new short[sizeof(short)*arr_len];
-                            memcpy (arr,str.c_str(),sizeof(short)*arr_len);
+                            short j;
+                            short *s;
+                            for(j =0; j < arr_len; j++) {
+                                s = new short[sizeof(short)];
+                                int ss = stoi(marshall[m+j].c_str());
+                                memcpy(s, &ss, sizeof(short));
+                                arr[j] = *s;
+                                cout << arr[j] << endl;
+                            }
                             args[i] = (void *)arr;
-                            i = offset;
+                            m +=arr_len;
                         }
                         break;
                     }
@@ -229,11 +236,18 @@ int rpcCall(char* name, int* argTypes, void** args) {
                             m++;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             int *arr = new int[sizeof(int)*arr_len];
-                            memcpy (arr,str.c_str(),sizeof(int)*arr_len);
+                            int j;
+                            int *a;
+                            for(j =0; j < arr_len; j++) {
+                                a = new int[sizeof(int)];
+                                int aa = stol(marshall[m+j].c_str());
+                                memcpy(a, &aa, sizeof(int));
+                                arr[j] = *a;
+                                cout << arr[j] << endl;
+                            }
                             args[i] = (void *)arr;
-                            i = offset;
+                            m +=arr_len;
                         }
                         break;
                     }
@@ -271,11 +285,18 @@ int rpcCall(char* name, int* argTypes, void** args) {
                             cout << "Arg " << *(double*)args[i] << endl;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             double *arr = new double[sizeof(double)*arr_len];
-                            memcpy (arr,str.c_str(),sizeof(double)*arr_len);
+                            int j;
+                            double* d;
+                            for(j =0; j < arr_len; j++) {
+                                d = new double[sizeof(double)];
+                                double dd = stod(marshall[m+j].c_str());
+                                memcpy(d, &dd, sizeof(double));
+                                arr[j] = *d;
+                                cout << arr[j] << endl;
+                            }
                             args[i] = (void *)arr;
-                            i = offset;
+                            m =+arr_len;
                         }
                         break;
                     }
@@ -289,11 +310,18 @@ int rpcCall(char* name, int* argTypes, void** args) {
                             cout << "Arg " << *(float*)args[i] << endl;
                         }
                         else {
-                            string str = append_vector_string(marshall,i, offset);
                             float *arr = new float[sizeof(float)*arr_len];
-                            memcpy (arr,str.c_str(),sizeof(float)*arr_len);
+                            int j;
+                            float* f;
+                            for(j =0; j < arr_len; j++) {
+                                f = new float[sizeof(float)];
+                                float ff = stof(marshall[m+j].c_str());
+                                memcpy(f, &ff, sizeof(float));
+                                arr[j] = *f;
+                                cout << arr[j] << endl;
+                            }
                             args[i] = (void *)arr;
-                            i = offset;
+                            m =+arr_len;
                         }
                         break;
                     }
