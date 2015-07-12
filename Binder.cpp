@@ -27,7 +27,7 @@ int Binder::send_register_response(int socket, int flag) {
     string buf = to_stri(flag);
     int f_send = send(socket,&buf,4,0);
     if (f_send < 0) {
-        return ERR_BINDER_SEND_FAIL;
+        return ERR_BINDER_REG_FAIL;
     }
     return 0;
 }
@@ -44,7 +44,7 @@ int Binder::receive_register_request (int socket, int length) {
     char *buff = new char[length];
     int recv_buff = recv(socket, buff, length, 0);
     if (recv_buff <0) {
-        return ERR_BINDER_RECV_FAIL;
+        return ERR_BINDER_REG_FAIL;
     }
 
     memcpy (s_name, buff, MAXHOSTNAME+1);
@@ -90,11 +90,11 @@ int Binder::handle_request(int socket, int type, fd_set *master) {
             m_len = 0;
             recv_length = recv(socket, &(m_len), 4, 0);
             if (recv_length < 0) {
-                return ERR_BINDER_RECV_FAIL;
+                return ERR_BINDER_REG_FAIL;
             }
             int rec_reg_req = receive_register_request(socket, ntohl(m_len));
             if (rec_reg_req != 0) {
-                return ERR_BINDER_RECV_FAIL;
+                return ERR_BINDER_REG_FAIL;
             }
             break;
         }
@@ -102,7 +102,7 @@ int Binder::handle_request(int socket, int type, fd_set *master) {
            m_len = 0;
            recv_length = recv(socket, &(m_len), 4, 0);
            if (recv_length < 0) {
-               return ERR_BINDER_RECV_FAIL;
+               return ERR_LOC_REQ_FAIL;
            }
            retVal = receive_location_request(socket,ntohl(m_len));
            if (retVal < 0) {
@@ -115,10 +115,8 @@ int Binder::handle_request(int socket, int type, fd_set *master) {
             if (a == 0) {
                 exit(0);
             }
+            return a;
         }
-//        default:
-//            retVal = -1;
-//            break;
     }
     return retVal;
 }
@@ -226,7 +224,7 @@ int Binder::init() {
                     else {
                         int r = handle_request(i,ntohl(messageType), &master);
                         if (r < 0) {
-                            cout << "We errd in Binder" << endl;
+                            return r;
                         }
                     }
                 }
@@ -298,17 +296,14 @@ ServerInfo get_server_to_service(string key) {
         }
 
     }
-    cout << "here2" << endl;
     cout << servers.size() << endl;
     cout << index_of_server << endl;
 
     // Pop the server at the index found
     servers.erase(servers.begin() + index_of_server);
-    cout << "here3" << endl;
 
     // Insert it back into the 'queue'
     servers.push_back(return_server);
-    cout << "here4" << endl;
 
     return return_server;
 }
@@ -325,16 +320,15 @@ int Binder::send_location_response(int socket, string key) {
         reason_code =htonl(ERR_SERVER_NOT_FOUND);
         res =send_all(socket,(char *)&msg_type,&send_bytes);
         if (res == -1) {
-            return ERR_BINDER_SEND_FAIL;
+            return ERR_LOC_RESP_FAIL;
         }
         res = send_all(socket, (char *)&reason_code, &send_bytes);
         if (res == -1) {
-            return  ERR_BINDER_SEND_FAIL;
+            return  ERR_LOC_RESP_FAIL;
         }
         return res;
     }
     else {
-        //TODO Load balance servers
         ServerInfo s = get_server_to_service(key);
 
         cout << "Binder:ServerInfo:" << s.host << endl;
@@ -343,7 +337,7 @@ int Binder::send_location_response(int socket, string key) {
         msg_type = htonl(LOCATION_SUCCESS);
         res =send_all(socket,(char *)&msg_type,&send_bytes);
         if (res == -1) {
-            return ERR_BINDER_SEND_FAIL;
+            return ERR_LOC_RESP_FAIL;
         }
         char *buff = new char [MAXHOSTNAME+1 + 4];
         int buff_len = MAXHOSTNAME+1+4;
@@ -352,7 +346,7 @@ int Binder::send_location_response(int socket, string key) {
         memcpy (buff+MAXHOSTNAME+1, &port, 4);
         int ret = send_all(socket, buff,&buff_len);
         if (ret == -1) {
-            return ERR_BINDER_SEND_FAIL;
+            return ERR_LOC_RESP_FAIL;
         }
         delete [] buff;
         return 0;
@@ -367,7 +361,7 @@ int Binder::receive_location_request(int socket, int length) {
     char *buff = new char[length];
     int recv_buff = recv(socket, buff, length, 0);
     if (recv_buff <0) {
-        return ERR_BINDER_RECV_FAIL;
+        return ERR_LOC_REQ_FAIL;
     }
 
     memcpy (key, buff, key_size);

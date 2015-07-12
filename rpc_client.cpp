@@ -34,33 +34,30 @@ int rpcCall(char* name, int* argTypes, void** args) {
     //Connect to the binder
     int connectionResult = c.connect_to_something(binderAddr, binderPort);
     if (connectionResult < 0) {
-        cout << "error: rpc_client couldn't connect to binder" << endl;
-        return connectionResult;
+        return ERR_BINDER_CONNECT_FAIL;
     }
-
 
     cout << "Connected to binder" << endl;
     //Create a message and serialize name and argTypes into a buffer
     LocationRequestMessage locMsg = c.create_location_request(name, argTypes);
     int messageResult = c.send_location_request(locMsg, c.get_binder_socket());
     if (messageResult < 0) {
-        cout << "error: rpc_client couldn't send the message correctly" << endl;
-        return messageResult;
+        return ERR_SENDING_LOC_REQ;
     }
-    delete []locMsg.getFuncNameBuffer();
+    delete [] locMsg.getFuncNameBuffer();
 
     int msg_type;
     int reason_code = 0;
     int res = recv(c.get_binder_socket(), &msg_type, 4, 0);
     if (res == -1) {
-        return ERR_BINDER_RECV_FAIL;
+        return ERR_LOC_RESP_FAIL;
     }
     msg_type = ntohl(msg_type);
     if (msg_type == LOCAITON_FAILURE) {
         cout << "Location failure" << endl;
         res = recv(c.get_binder_socket(), &reason_code, 4, 0);
         if (res == -1) {
-            return ntohl(reason_code);
+            return ERR_PROCEDURE_NOT_FOUND;
         }
     }
     else if (msg_type == LOCATION_SUCCESS) {
@@ -74,19 +71,21 @@ int rpcCall(char* name, int* argTypes, void** args) {
         memcpy(&port, buff + MAXHOSTNAME + 1, 4);
         s_name[MAXHOSTNAME] = '\0';
         port = ntohl(port);
+
         cout << "server" << s_name << endl;
         cout << "port" << port << endl;
 
         //connect to the server
         int s_server = connect_to(s_name, (char *) to_stri(port).c_str());
         if (s_server < 0) {
-            cout << "error: could not connect to specified server" << endl;
-            return -1;
+            return ERR_CLIENT_SERVER_CONNECT_FAIL;
         }
+
         c.set_server_socket(s_server);
         int r = c.send_execute_request(c.get_server_socket(), name, argTypes, args);
         if (r < 0) {
             cout << "error: Sending request failed" << endl;
+            return ERR_SENDING_EXEC_REQ;
         }
 //        return c.receive_execute_response(&args);
         int ret;
@@ -94,11 +93,12 @@ int rpcCall(char* name, int* argTypes, void** args) {
         int reason_code;
         ret = recv(c.get_server_socket(), &flag, 4,0);
         if (ret < 0) {
-            return ERR_RECV_CLIENT;
+            return ERR_SERVER_CLIENT_RECV;
         }
+
         if (ntohl(flag) == EXECUTE_FAILURE) {
             ret = recv(c.get_server_socket(), &reason_code,4,0);
-            return ntohl(reason_code);
+            return ERR_EXECUTE_FAIL;
         }
         else if (ntohl(flag) == EXECUTE_SUCCESS){
             int m_length =0;

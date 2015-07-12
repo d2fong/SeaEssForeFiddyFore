@@ -1,7 +1,7 @@
 #include "Server.h"
 #include "helpers.h"
 #include "constants.h"
-
+#include "error.h"
 
 #include <iostream>
 #include <netinet/in.h>
@@ -66,7 +66,7 @@ int Server::send_register_request(RegisterMessage m, int binderSocket) {
     int ret = send_all(binderSocket,m.getBuff(),&byte_length);
     if (ret == -1) {
         cout << "Error sending register request" << endl;
-        return -8;
+        return -1;
     }
     delete [] m.getBuff();
     return 0;
@@ -86,7 +86,10 @@ int Server::send_execute_response(int socket, Function f, string key, string mar
         buff = new char[msg_size];
         memcpy (buff, &flag, 4);
         memcpy (buff+4, &reason_code, 4);
-        send_all(socket, buff,&msg_size);
+        int a = send_all(socket, buff,&msg_size);
+        if (a < 0) {
+            return ERR_SENDING_EXEC_RESP;
+        }
     }
     else {
         cout << "Marshall: " << marshall << endl;

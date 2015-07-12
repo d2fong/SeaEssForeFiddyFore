@@ -77,7 +77,6 @@ int rpcRegister(char* name, int* argTypes, skeleton f) {
     vector <Args> a;
     for (int i =0; i < arg_length; i++) {
         a.push_back(Args(argTypes[i]));
-        cout << "REGTYPE: " << a[i].get_type() << endl;
     }
 
     Function func = Function(string(name), argTypes, arg_length-1);
@@ -94,7 +93,7 @@ int rpcRegister(char* name, int* argTypes, skeleton f) {
 
     int m_recv = recv(s.get_binder_socket(),&flag,4,0);
     if (atoi(flag.c_str()) == REGISTER_FAILURE) {
-        return ERR_REG_FAIL;
+        return ERR_SENDING_REG;
     }
     else {
         return server_db.update_db(atoi(flag.c_str()),func,f);
@@ -492,9 +491,6 @@ int exec_args(int socket, string key, string arg_s) {
             if (res != 0) {
                 res = ERR_INVALID_ARGS;
             }
-            cout << "Skeleton: result : " << res << endl;
-            cout << "ARgs[0] After " << ((long *) args[0]) << endl;
-//            cout << "ARgs[1] After " << *((int *) args[1]) << endl;
 
             string marshall = server_marshall_args(f.get_argtypes(), args, arg_length);
             cout << "MARSHALL: " << marshall << endl;
@@ -507,7 +503,7 @@ int exec_args(int socket, string key, string arg_s) {
             return s.send_execute_response(socket, f,key, marshall, res);
         }
         else {
-            cout << "Did not find skeleton" << endl;
+            return ERR_SKEL_NOT_FOUND;
         }
 
     }
