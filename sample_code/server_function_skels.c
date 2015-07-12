@@ -8,6 +8,13 @@ int f0_Skel(int *argTypes, void **args) {
   return 0;
 }
 
+int f00_Skel(int *argTypes, void **args) {
+
+  *(int *)args[0] = f00(*(int *)args[1], *(int *)args[2]);
+  return 0;
+}
+
+
 int f1_Skel(int *argTypes, void **args) {
 
   *((long *)*args) = f1( *((char *)(*(args + 1))), 

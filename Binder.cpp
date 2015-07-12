@@ -55,10 +55,6 @@ int Binder::receive_register_request (int socket, int length) {
     s_name[MAXHOSTNAME]= '\0';
     f_name[MAXFUNCNAME]= '\0';
 
-//    cout << "Name: " << f_name << endl;
-//    cout << "S_name : " << s_name << endl;
-//    cout << "Port: " << ntohl(port) << endl;
-//    cout << "Key: " << key << endl;
 
     n_port = ntohl(port);
 
@@ -208,8 +204,8 @@ int Binder::init() {
                             // connection closed
                             printf("selectserver: socket %d hung up\n", i);
                             if (binder_db.socket_map.find(i) != binder_db.socket_map.end()) {
-                                int i =update_binder_dbs(i);
-                                if (i < 0) {
+                                int q =update_binder_dbs(i);
+                                if (q < 0) {
                                     cout << "Binder db update failure" << endl;
                                 }
                             }
@@ -236,29 +232,50 @@ int Binder::init() {
 
 int Binder::update_binder_dbs(int socket) {
     ServerInfo s = binder_db.socket_map[socket];
+    cout << s.host << endl;
+    cout << s.port << endl;
+
     string key = "";
     vector<ServerInfo> v;
+    vector <string> keys;
     typedef map<string, vector<ServerInfo> >::iterator it_type;
-    int index = -1;
+    int lookup_index = 0;
     for (it_type it = binder_db.lookup.begin(); it!= binder_db.lookup.end(); it++) {
+
         key = it->first;
         v = it->second;
+        cout << "key" << key << endl;
         for(vector<ServerInfo>::size_type i = 0; i != v.size(); i++) {
+            cout << "s host" << s.host << endl;
+            cout << "s port" << s.port << endl;
+            cout << "v host" << v[i].host << endl;
+            cout << "v port" << v[i].port << endl;
             if (s.host == v[i].host && s.port == v[i].port) {
-                index = i;
-                break;
+                keys.push_back(key);
             }
         }
     }
 
     map<int, ServerInfo>::iterator it;
-    if (index != -1) {
-        it = binder_db.socket_map.find(socket);
-        binder_db.socket_map.erase(it);
-        binder_db.lookup[key].erase(binder_db.lookup[key].begin() + index);
-
+    for(vector<string>::size_type i = 0; i != keys.size(); i++) {
+        v = binder_db.lookup[keys[i]];
+        int index = -1;
+        for (vector<ServerInfo>::size_type l = 0; l!= v.size(); l++) {
+            if (v[l].port == s.port && v[l].host == s.host) {
+                index = l;
+                break;
+            }
+        }
+        if (index != -1) {
+            v.erase(v.begin()+index);
+        }
+        if (v.size() == 0) {
+            binder_db.lookup.erase(keys[i]);
+        }
     }
 
+    it = binder_db.socket_map.find(socket);
+    binder_db.socket_map.erase(it);
 
     return 0;
 }
