@@ -19,6 +19,10 @@ using namespace std;
 
 BinderDB binder_db = BinderDB();
 
+vector <ServerInfo> servers;
+
+ServerInfo server_to_service(string key);
+
 int Binder::send_register_response(int socket, int flag) {
     string buf = to_stri(flag);
     int f_send = send(socket,&buf,4,0);
@@ -30,6 +34,7 @@ int Binder::send_register_response(int socket, int flag) {
 
 int Binder::receive_register_request (int socket, int length) {
     int port;
+    int n_port;
     char s_name [MAXHOSTNAME +1];
     char f_name [MAXFUNCNAME + 1];
     int key_size = length - (MAXFUNCNAME + 1 + MAXHOSTNAME + 1 + 4);
@@ -55,7 +60,23 @@ int Binder::receive_register_request (int socket, int length) {
 //    cout << "Port: " << ntohl(port) << endl;
 //    cout << "Key: " << key << endl;
 
-    int ret_update = binder_db.update_db(f_name, s_name, ntohl(port), key, socket);
+    n_port = ntohl(port);
+
+    ServerInfo s = ServerInfo(s_name, n_port);
+
+    int found = 0;
+    for (vector<ServerInfo>::size_type i = 0; i != servers.size(); i++) {
+        if (servers[i].host == s_name && servers[i].port == n_port) {
+            found = 1;
+            break;
+        }
+    }
+    if (found ==0) {
+        servers.push_back(s);
+    }
+
+
+    int ret_update = binder_db.update_db(f_name, s_name, n_port, key, socket);
     return send_register_response(socket,ret_update);
 }
 
@@ -117,7 +138,7 @@ int Binder::init() {
     print_status();
 
 
-        fd_set master;    // master file descriptor list
+    fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()
     int fdmax;        // maximum file descriptor number
 
@@ -250,6 +271,47 @@ void Binder::print_status() {
 
 }
 
+ServerInfo get_server_to_service(string key) {
+
+    vector<ServerInfo> key_servs;
+    ServerInfo curr_serv;
+
+    int index_of_server = 0;
+    ServerInfo return_server;
+    // Find index of next server to service the request
+    for (vector<ServerInfo>::size_type i = 0; i != servers.size(); i++) {
+        curr_serv = servers[i];
+        int s_found = 0;
+        if (binder_db.lookup.find(key) != binder_db.lookup.end()) {
+            key_servs = binder_db.lookup[key];
+            for (vector<ServerInfo>::size_type m = 0; m != key_servs.size(); m++) {
+                if (curr_serv.port == key_servs[m].port && curr_serv.host == key_servs[m].host) {
+                    return_server = curr_serv;
+                    index_of_server = i;
+                    s_found = 1;
+                    break;
+                }
+            }
+        }
+        if (s_found == 1) {
+            break;
+        }
+
+    }
+    cout << "here2" << endl;
+    cout << servers.size() << endl;
+    cout << index_of_server << endl;
+
+    // Pop the server at the index found
+    servers.erase(servers.begin() + index_of_server);
+    cout << "here3" << endl;
+
+    // Insert it back into the 'queue'
+    servers.push_back(return_server);
+    cout << "here4" << endl;
+
+    return return_server;
+}
 
 int Binder::send_location_response(int socket, string key) {
 
@@ -273,7 +335,7 @@ int Binder::send_location_response(int socket, string key) {
     }
     else {
         //TODO Load balance servers
-        ServerInfo s = binder_db.lookup[key][0];
+        ServerInfo s = get_server_to_service(key);
 
         cout << "Binder:ServerInfo:" << s.host << endl;
         cout << "Binder:ServerPort:" << s.port << endl;

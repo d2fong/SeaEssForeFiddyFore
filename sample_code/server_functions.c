@@ -39,6 +39,15 @@ char* f2(float a, double b) {
   return str1;
 }
 
+//long* f2(long *a, double b) {
+//
+//  long * l = (long *) malloc(sizeof(long) * 4);
+//  for (long i=0; i < 4; i++) {
+//    l[i]= a[i];
+//  }
+//  return l;
+//}
+
 
 /* 
  * bubble sort

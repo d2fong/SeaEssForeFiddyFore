@@ -39,8 +39,8 @@ int rpcInit() {
     cout << "rpcInit invoked" << endl;
 
     int client_socket = create_connection_socket(SERVERPORT, &(ret_port), ret_host);
-    if (client_socket <= 0) {
-        return ERR_CREATE_SOCK_FAIL;
+    if (client_socket < 0) {
+        return ERR_CREATE_SOCK_SERVER_FAIL;
     }
 
     cout << "Created client socket" << endl;

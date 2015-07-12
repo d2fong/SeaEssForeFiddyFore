@@ -39,6 +39,11 @@ int main(int argc, char *argv[]) {
   argTypes2[2] = (1 << ARG_INPUT) | (ARG_DOUBLE << 16);
   argTypes2[3] = 0;
 
+//  argTypes2[0] = (1 << ARG_OUTPUT) | (ARG_LONG << 16) | 4;
+//  argTypes2[1] = (1 << ARG_INPUT) | (ARG_LONG << 16) | 4;
+//  argTypes2[2] = (1 << ARG_INPUT) | (ARG_DOUBLE << 16);
+//  argTypes2[3] = 0;
+
   /*
    * f3 takes an array of long. 
   */

@@ -26,6 +26,15 @@ int f2_Skel(int *argTypes, void **args) {
   return 0;
 }
 
+//int f2_Skel(int *argTypes, void **args) {
+//
+//  /* (char *)*args = f2( *((float *)(*(args + 1))), *((double *)(*(args + 2))) ); */
+//  *args = f2( (long *)(*(args + 1)), *((double *)(*(args + 2))) );
+//
+//  return 0;
+//}
+
+
 int f3_Skel(int *argTypes, void **args) {
 
   f3((long *)(*args));

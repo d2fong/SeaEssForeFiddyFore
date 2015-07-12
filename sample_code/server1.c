@@ -52,7 +52,8 @@ int main(int argc, char *argv[]) {
     /*
      * register server functions f0~f4
      */
-    rpcRegister("f0", argTypes3, *f3_Skel);
+//    rpcRegister("f0", argTypes3, *f3_Skel);
+    rpcRegister("f1", argTypes1, *f1_Skel);
 
 //
 //  /* call rpcExecute */
