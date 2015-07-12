@@ -19,7 +19,7 @@ client_link_test: client1.o librpc.a
 	g++ -L . client1.o -lrpc -o client1
 
 server_link_test: server.o librpc.a
-	g++ -L . server.o -lrpc -o server1
+	g++ -L . server.o server_functions.o server_function_skels.o -lrpc -o server1
 
 # convenience method
 all: binder client server
