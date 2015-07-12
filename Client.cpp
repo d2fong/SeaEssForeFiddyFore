@@ -43,7 +43,6 @@ int Client::connect_to_something(char *addr, char *port) {
     s = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
     if (s < 0) {
-        cout << "error: socket failure" << endl;
         return s;
     }
 
@@ -51,7 +50,6 @@ int Client::connect_to_something(char *addr, char *port) {
     connectionResult = connect(s, res->ai_addr, res->ai_addrlen);
 
     if (connectionResult != 0) {
-        cout << "error: connection failure" << endl;
         return connectionResult;
     }
 
@@ -92,7 +90,6 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     Function func = Function(string(m.getFuncNameBuffer()), m.getArgTypesBuffer(),m.getArgTypesLength());
 
     int key_size = func.get_key().length() + 1;
-    cout << "KEY SIZE" << key_size << endl;
     int cbf_length = key_size;
     int ibf_length = 8;
 
@@ -126,10 +123,7 @@ int Client::send_execute_request(int serverSocket, char *name, int *argTypes, vo
 
     string dataMarshallingKey = marshall_args(argTypes, args, arg_length);
 
-    cout << "MARSHALL KEY" << dataMarshallingKey << endl;
-
     int marshallSize = dataMarshallingKey.length() + 1;
-    cout << "MARSHALL SIZE" << marshallSize << endl;
 
     int cbf_length = func_size + marshallSize;
     int ibf_length = 16;
@@ -152,8 +146,6 @@ int Client::send_execute_request(int serverSocket, char *name, int *argTypes, vo
     memcpy(buffer+12, func_key.c_str(), func_size);
     memcpy(buffer+12+func_size, &b_mars_length, 4);
     memcpy(buffer+16+func_size, dataMarshallingKey.c_str(), mars_length);
-
-    cout << "Sending execute message" << endl;
 
     int byte_length = cbf_length + ibf_length;
     return send_all(serverSocket, buffer, &byte_length);

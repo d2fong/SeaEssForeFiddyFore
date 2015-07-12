@@ -30,7 +30,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
     int i = 0;
     while (argTypes[i++]);
 
-    cout << "Init rpc call" << endl;
 
     //Connect to the binder
     int connectionResult = c.connect_to_something(binderAddr, binderPort);
@@ -38,7 +37,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
         return ERR_BINDER_CONNECT_FAIL;
     }
 
-    cout << "Connected to binder" << endl;
     //Create a message and serialize name and argTypes into a buffer
     LocationRequestMessage locMsg = c.create_location_request(name, argTypes);
     int messageResult = c.send_location_request(locMsg, c.get_binder_socket());
@@ -55,7 +53,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
     }
     msg_type = ntohl(msg_type);
     if (msg_type == LOCAITON_FAILURE) {
-        cout << "Location failure" << endl;
         res = recv(c.get_binder_socket(), &reason_code, 4, 0);
         if (res == -1) {
             return ERR_PROCEDURE_NOT_FOUND;
@@ -63,7 +60,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
     }
     else if (msg_type == LOCATION_SUCCESS) {
 
-        cout << "Location success" << endl;
         char buff[MAXHOSTNAME + 1 + 4];
         char s_name[MAXHOSTNAME + 1];
         int port = 0;
@@ -72,9 +68,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
         memcpy(&port, buff + MAXHOSTNAME + 1, 4);
         s_name[MAXHOSTNAME] = '\0';
         port = ntohl(port);
-
-        cout << "server" << s_name << endl;
-        cout << "port" << port << endl;
 
         //connect to the server
         int s_server = connect_to(s_name, (char *) to_stri(port).c_str());
@@ -85,7 +78,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
         c.set_server_socket(s_server);
         int r = c.send_execute_request(c.get_server_socket(), name, argTypes, args);
         if (r < 0) {
-            cout << "error: Sending request failed" << endl;
             return ERR_SENDING_EXEC_REQ;
         }
 //        return c.receive_execute_response(&args);
@@ -113,7 +105,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                 return ERR_SERVER_CLIENT_RECV;
             }
             int n_len = ntohl(m_length);
-            cout << "RECV EXECUTE RESPONSE: len: " << n_len << endl;
 
             char * buff = new char [n_len];
             ret = recv(c.get_server_socket(), buff, n_len,0);
@@ -124,23 +115,18 @@ int rpcCall(char* name, int* argTypes, void** args) {
             memcpy (&mars_len, buff,4);
             n_mars_len = ntohl(mars_len);
 
-            cout << "marshall Length " << n_mars_len << endl;
             memcpy (&key_len, buff+4 ,4);
 
             n_key_len= ntohl(key_len);
-            cout << "arg length" << n_key_len << endl;
 
             char marshalled [n_mars_len+1];
             memcpy (marshalled, buff+8, n_mars_len);
             marshalled[n_mars_len]= '\0';
 
-            cout << "Marshalled " << marshalled << endl;
-
             char key[n_key_len+1];
             memcpy(key, buff+8+n_mars_len,n_key_len+1);
             key[n_key_len]= '\0';
 
-            cout << "Key in client " << key << endl;
 
             vector<string> key_s = split(key, '|');
             vector<string> marshall = split(marshalled, '|');
@@ -149,7 +135,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
 
             string f_name = key_s[0];
             int arg_length = stoi(key_s[1]);
-            cout << "creating args " << endl;
             int index=2;
             for (int i=0; i < arg_length; i++) {
                 arg_info.push_back(Args(stoi(key_s[index]),stoi(key_s[index+1]),stoi(key_s[index+2]), stoi(key_s[index+3])));
@@ -165,7 +150,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                 curr_arg = arg_info[i];
                 arr_len = curr_arg.get_arr_length();
                 offset = i+arr_len-1;
-                cout << "Marshal[i] " << marshall[m] << endl;
                 switch (curr_arg.get_type()) {
                     case ARG_CHAR: {
                         if (arr_len==0) {
@@ -222,7 +206,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                         if (arr_len==0) {
                             int *in = new int[sizeof(int)];
                             int a = stoi(marshall[m].c_str());
-                            cout << "string to int a " << a << endl;
                             memcpy(in, &a, sizeof(int));
                             args[i] = (void *) in;
                             m++;
@@ -274,7 +257,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                             memcpy (d,&a, sizeof(double));
                             args[i] = (void *)d;
                             m++;
-                            cout << "Arg " << *(double*)args[i] << endl;
                         }
                         else {
                             double *arr = new double[sizeof(double)*arr_len];
@@ -299,7 +281,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                             memcpy (f,&a, sizeof(float));
                             args[i] = (void *)f;
                             m++;
-                            cout << "Arg " << *(float*)args[i] << endl;
                         }
                         else {
                             float *arr = new float[sizeof(float)*arr_len];
@@ -318,7 +299,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                         break;
                     }
                     default: {
-                        cout << "Unmarshall: Shouldn't be here." << endl;
                         return -1;
                     }
                 }
@@ -327,7 +307,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
         }
     }
     else {
-        cout << "Neither success nor failure?" << endl;
         return 0;
     }
     return 0;
@@ -345,7 +324,6 @@ int rpcTerminate() {
     int expected = 4;
     int r = send_all(c.get_binder_socket(),(char*) &mType,&expected);
     if ( r < 0) {
-        cout << "Couldn't send termiante request" << endl;
         return r;
     }
     return 0;
