@@ -51,22 +51,14 @@ RegisterMessage Server::create_register_message(Function f) {
 
     ret.set_register_message(host,port,f,buffer,cbf_length+ibf_length);
 
-    cout << "Name: " << f.get_name() << endl;
-    cout << "S_name : " << host << endl;
-    cout << "Port: " << port << endl;
-    cout << "Key: " << f.get_key() << endl;
-    cout << "Key Size: " << key_size << endl;
-
     return ret;
 }
 
 int Server::send_register_request(RegisterMessage m, int binderSocket) {
     int byte_length = m.getBuffLength();
-    cout << "Register Request Buff Length: " << byte_length << endl;
     int ret = send_all(binderSocket,m.getBuff(),&byte_length);
     if (ret == -1) {
-        cout << "Error sending register request" << endl;
-        return -1;
+        return ERR_REG_RESPONSE_FAIL;
     }
     delete [] m.getBuff();
     return 0;
@@ -92,10 +84,6 @@ int Server::send_execute_response(int socket, Function f, string key, string mar
         }
     }
     else {
-        cout << "Marshall: " << marshall << endl;
-        cout << "Generating execute response" << endl;
-        cout << "Sending marshall key: " << marshall << endl;
-        cout << "Sending arg len: " << f.get_arg_length() << endl;
 
         flag = htonl(EXECUTE_SUCCESS);
 
@@ -113,8 +101,6 @@ int Server::send_execute_response(int socket, Function f, string key, string mar
         memcpy (buff+12, &b_key_len, 4);
         memcpy (buff+16, marshall.c_str(), marshall.length()+1);
         memcpy (buff+16 + marshall.length()+1, f.get_key().c_str(), f.get_key().length()+1);
-
-        cout << "Sending execute response" << endl;
 
         byte_length= cbf_length+ ibf_length;
         return send_all(socket, buff, &byte_length);

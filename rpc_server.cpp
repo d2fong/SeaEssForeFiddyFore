@@ -36,14 +36,10 @@ int rpcInit() {
     unsigned short ret_port;
     char ret_host[MAXHOSTNAME + 1];
 
-    cout << "rpcInit invoked" << endl;
-
     int client_socket = create_connection_socket(SERVERPORT, &(ret_port), ret_host);
     if (client_socket < 0) {
         return ERR_CREATE_SOCK_SERVER_FAIL;
     }
-
-    cout << "Created client socket" << endl;
 
     //Open connection to binder
 
@@ -53,13 +49,11 @@ int rpcInit() {
 
     int binder_socket = connect_to(binder_addr, binder_port);
     if (binder_socket < 0) {
-        cout << "Could not connect to binder" << endl;
         return ERR_BINDER_CONNECT_FAIL;
     }
 
     s = Server(string(ret_host), ret_port, client_socket,binder_socket);
     server_db = ServerDB();
-    cout << "Connected to binder" << endl;
     return 0;
 }
 
@@ -81,24 +75,19 @@ int rpcRegister(char* name, int* argTypes, skeleton f) {
 
     Function func = Function(string(name), argTypes, arg_length-1);
 
-    cout << "Got to beginning of rpcRegister.." << endl;
     RegisterMessage reg_msg = s.create_register_message(func);
-    cout << "Binder Register Message generated.." << endl;
 
     int m_send = s.send_register_request(reg_msg, s.get_binder_socket());
     if (m_send < 0) {
         return REGISTER_FAILURE;
     }
-    cout << "Message to binder is sent" << endl;
 
     int m_recv = recv(s.get_binder_socket(),&flag,4,0);
-    cout << "Got here" << endl;
     int n_flag = ntohl(flag);
     if (n_flag == REGISTER_FAILURE) {
         return ERR_SENDING_REG;
     }
     else {
-    cout << "Got here" << endl;
         return server_db.update_db(n_flag,func,f);
     }
 }
@@ -143,7 +132,7 @@ int rpcExecute() {
         read_fds = master; // copy it
         if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
         {
-            perror("select");
+            return ERR_SELECT_FAIL -28;
             exit(4);
         }
         // run through the existing connections looking for data to read
@@ -158,7 +147,7 @@ int rpcExecute() {
 
                     if (newfd == -1)
                     {
-                        perror("accept");
+                        return ERR_SERVER_ACCEPT_FAIL;
                     }
                     else
                     {
@@ -178,9 +167,8 @@ int rpcExecute() {
                         // got error or connection closed by client
                         if (nbytes == 0) {
                             // connection closed
-                            printf("selectserver: socket %d hung up\n", i);
                         } else {
-                            perror("recv");
+                            return ERR_SERVER_ACCEPT_FAIL;
                         }
                         close(i); // bye!
                         FD_CLR(i, &master); // remove from master set
@@ -188,7 +176,7 @@ int rpcExecute() {
                     else {
                         int r = handle_request(i,ntohl(messageType));
                         if (r < 0) {
-                            cout << "We errd in server" << endl;
+                            return r;
                         }
                     }
                 }
@@ -214,7 +202,6 @@ int handle_request (int socket, int messageType) {
                 return ERR_SERVER_CLIENT_RECV;
             }
             int n_len = ntohl(m_length);
-            cout << "N_Length " << n_len << endl;
 
             char * buff = new char [n_len];
             rec = recv(socket, buff, n_len,0);
@@ -222,26 +209,19 @@ int handle_request (int socket, int messageType) {
             memcpy (&key_len, buff,4);
             n_key_len = ntohl(key_len);
 
-            cout << "Key Length " << n_key_len << endl;
 
             char key[n_key_len+1];
             memcpy (key, buff+4, n_key_len);
             key[n_key_len]= '\0';
 
-            cout << "Key " << key << endl;
 
             memcpy(&args_len, buff+4+n_key_len,4);
             n_args_len = ntohl(args_len);
-            cout << "Args Length " << n_args_len << endl;
 
             char args[n_args_len+1];
             memcpy(args, buff+8+n_key_len, n_args_len);
             args[n_args_len] ='\0';
 
-
-            cout << "KEY: " << key << endl;
-            cout << "ARGS: " << args << endl;
-            cout << "ARG LENGTH" << n_args_len << endl;
             delete [] buff;
             return exec_args(socket,key, args);
         }
@@ -253,7 +233,7 @@ int handle_request (int socket, int messageType) {
             }
         }
         default: {
-            return 0;
+            return ERR_MSG_TYPE_NOT_FOUND;
         }
     }
 }
@@ -267,26 +247,18 @@ int exec_args(int socket, string key, string arg_s) {
 
     string f_name = key_s[0];
     int arg_length = stoi(key_s[1]);
-    cout << "" << endl;
-    cout << "" << endl;
-    cout << "creating args " << endl;
     int index=2;
     for (int i=0; i < arg_length; i++) {
         arg_info.push_back(Args(stoi(key_s[index]),stoi(key_s[index+1]),stoi(key_s[index+2]), stoi(key_s[index+3])));
-        cout << arg_info[i].get_type() << endl;
         index+=4;
     }
-    cout << "unmarshall args " << endl;
 
     if (server_db.functions.find(key) != server_db.functions.end()) {
         f = server_db.functions[key];
-        cout << "Got f" << endl;
         if (server_db.lookup.find(key) != server_db.lookup.end()) {
             int arg_size= calculate_arg_size(arg_info);
-//            void **args;
 
             void** args = (void**)malloc(sizeof(void*) * arg_info.size());
-            cout << "MARSHALL BEFORE UNMARSHALL : " <<  arg_s << endl;
 
 
             Args curr_arg;
@@ -295,7 +267,6 @@ int exec_args(int socket, string key, string arg_s) {
             for (int i =0; i < arg_info.size(); i++) {
                 curr_arg = arg_info[i];
                 arr_len = curr_arg.get_arr_length();
-                cout << "Marshal[i] " << marshall[m] << endl;
                 switch (curr_arg.get_type()) {
                     case ARG_CHAR: {
                         if (arr_len==0) {
@@ -348,7 +319,6 @@ int exec_args(int socket, string key, string arg_s) {
                                     int aa = stoi(marshall[m + j].c_str());
                                     memcpy(a, &aa, sizeof(short));
                                     arr[j] = *a;
-                                    cout << arr[j] << endl;
                                 }
                                 args[i] = (void *) arr;
                                 m += arr_len;
@@ -379,7 +349,6 @@ int exec_args(int socket, string key, string arg_s) {
                                     int aa = stoi(marshall[m + j].c_str());
                                     memcpy(a, &aa, sizeof(int));
                                     arr[j] = *a;
-                                    cout << arr[j] << endl;
                                 }
                                 args[i] = (void *) arr;
                                 m += arr_len;
@@ -397,14 +366,12 @@ int exec_args(int socket, string key, string arg_s) {
                         }
                         else {
                             if (curr_arg.get_output()==1 && curr_arg.get_input()==0) {
-                                cout << "Long array here" << endl;
                                 long *arr = new long[sizeof(long)*arr_len];
                                 args[i] = (void *)arr;
                                 m++;
                             }
                             else {
                                 long *arr = new long[sizeof(long) * arr_len];
-                                cout << "LONG ARR LEN" << arr_len << endl;
                                 int j;
                                 long *l;
                                 for (j = 0; j < arr_len; j++) {
@@ -442,7 +409,6 @@ int exec_args(int socket, string key, string arg_s) {
                                     double dd = stod(marshall[m + j].c_str());
                                     memcpy(d, &dd, sizeof(double));
                                     arr[j] = *d;
-                                    cout << arr[j] << endl;
                                 }
                                 args[i] = (void *) arr;
                                 m = +arr_len;
@@ -473,7 +439,6 @@ int exec_args(int socket, string key, string arg_s) {
                                     float ff = stof(marshall[m + j].c_str());
                                     memcpy(f, &ff, sizeof(float));
                                     arr[j] = *f;
-                                    cout << arr[j] << endl;
                                 }
                                 args[i] = (void *) arr;
                                 m = +arr_len;
@@ -482,21 +447,18 @@ int exec_args(int socket, string key, string arg_s) {
                         break;
                     }
                     default: {
-                        cout << "Unmarshall: Shouldn't be here." << endl;
-                        return -1;
+                        return ERR_UNMARSHALL_FAIL;
                     }
                 }
             }
 
             skeleton q = server_db.lookup[key];
-            cout << "Got skeleton" << endl;
             res = (*q)(f.get_argtypes(), args);
             if (res != 0) {
                 res = ERR_INVALID_ARGS;
             }
 
             string marshall = server_marshall_args(f.get_argtypes(), args, arg_length);
-            cout << "MARSHALL: " << marshall << endl;
 
 
             for (int i =0; i < arg_length; i++) {
@@ -511,7 +473,6 @@ int exec_args(int socket, string key, string arg_s) {
 
     }
     else {
-        cout << "error: server doenst contain func " << endl;
         return ERR_SERVER_DOESNT_CONTAIN_FUNC;
     }
 }

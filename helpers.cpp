@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include "DB.h"
+#include "error.h"
 #include <stdlib.h>
 
 using namespace std;
@@ -37,7 +38,6 @@ int unmarshall_args (void ***args, vector<Args> arg_info, vector<string> marshal
         curr_arg = arg_info[i];
         arr_len = curr_arg.get_arr_length();
         offset = i+arr_len-1;
-        cout << "Marshal[i] " << marshall[i] << endl;
         switch (curr_arg.get_type()) {
             case ARG_CHAR: {
                 if (arr_len==0) {
@@ -143,12 +143,10 @@ int unmarshall_args (void ***args, vector<Args> arg_info, vector<string> marshal
                 break;
             }
             default: {
-                cout << "Unmarshall: Shouldn't be here." << endl;
-                return -1;
+                return ERR_UNMARSHALL_FAIL;
             }
         }
     }
-    cout << "Got here" << endl;
 //    **args = ar;
 
    return 0;
@@ -159,18 +157,13 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
     vector <Args> a;
     for (int i =0; i < arg_length; i++) {
         a.push_back(Args(argTypes[i]));
-        cout << "TYPE: " << a[i].get_type() << endl;
     }
-    cout << "Marshall_args: Vector<Args> size " << a.size() << endl;
     int m =0;
     while(args[m++]);
-    cout << "Marshall_args: **args size " << m << endl;
-    cout << "Marshall_args: arg_length " << arg_length << endl;
     stringstream  s;
     string buff="";
     int curr_index=0;
     for (int i =0; i < arg_length; i++) {
-        cout << "ARR LENGTH " << a[i].get_arr_length() << endl;
         switch (a[i].get_type()) {
             case ARG_CHAR: {
                 if (a[i].get_arr_length()==0) {
@@ -275,13 +268,10 @@ string marshall_args (int * argTypes, void **args, int arg_length) {
                 break;
             }
             default: {
-                cout << "Got into default" << endl;
                 return "";
             }
-            cout << "S" << endl;
         }
     }
-    cout << "No seg in marshall_args" << endl;
 
     string ret = s.str();
     return ret.substr(0, ret.size()-1);
@@ -406,9 +396,8 @@ int connect_to(char* addr, char* port) {
     // connect!
 
     if (connect(sockfd, res->ai_addr, res->ai_addrlen) != 0) {
-        cout << "GOT HERE"<< endl;
 
-        return -1;
+        return ERR_BINDER_CONNECT_FAIL;
     }
     else {
         return sockfd;
@@ -506,18 +495,13 @@ string server_marshall_args (int * argTypes, void **args, int arg_length) {
     vector <Args> a;
     for (int i =0; i < arg_length; i++) {
         a.push_back(Args(argTypes[i]));
-        cout << "TYPE: " << a[i].get_type() << endl;
     }
-    cout << "Marshall_args: Vector<Args> size " << a.size() << endl;
     int m =0;
     while(args[m++]);
-    cout << "Marshall_args: **args size " << m << endl;
-    cout << "Marshall_args: arg_length " << arg_length << endl;
     stringstream  s;
     string buff="";
     int curr_index=0;
     for (int i =0; i < arg_length; i++) {
-        cout << "ARR LENGTH " << a[i].get_arr_length() << endl;
         switch (a[i].get_type()) {
             case ARG_CHAR: {
                 if (a[i].get_arr_length()==0) {
@@ -541,9 +525,7 @@ string server_marshall_args (int * argTypes, void **args, int arg_length) {
             }
             case ARG_INT: {
                 if (a[i].get_arr_length()==0) {
-//                    cout << "A" << endl;
                     s << *((int*) (args[i])) << "|";
-//                    cout << "B" << endl;
                 }
                 else {
                     for (int  m=0; m < a[i].get_arr_length();m++) {
@@ -586,13 +568,10 @@ string server_marshall_args (int * argTypes, void **args, int arg_length) {
                 break;
             }
             default: {
-                cout << "Got into default" << endl;
                 return "";
             }
-                cout << "S" << endl;
         }
     }
-    cout << "No seg in marshall_args" << endl;
 
     string ret = s.str();
     return ret.substr(0, ret.size()-1);

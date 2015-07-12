@@ -40,7 +40,6 @@ int Binder::receive_register_request (int socket, int length) {
     int key_size = length - (MAXFUNCNAME + 1 + MAXHOSTNAME + 1 + 4);
     char key [key_size+1];
 
-    cout << "BUFF LENGTH" << length << endl;
     char *buff = new char[length];
     int recv_buff = recv(socket, buff, length, 0);
     if (recv_buff <0) {
@@ -102,7 +101,7 @@ int Binder::handle_request(int socket, int type, fd_set *master) {
            }
            retVal = receive_location_request(socket,ntohl(m_len));
            if (retVal < 0) {
-               cout << "Binder: ERROR sending location response" << endl;
+               return ERR_LOC_RESP_FAIL;
            }
            break;
        }
@@ -123,7 +122,7 @@ int Binder::init() {
     int socket = create_connection_socket(BINDERPORT, &port, addr);
 
     if (socket < 0) {
-        perror("socket connect fail");
+        return ERR_SOCKET_CONNECT_FAIL;
     }
 
 
@@ -167,7 +166,7 @@ int Binder::init() {
         read_fds = master; // copy it
         if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
         {
-            perror("select");
+            return ERR_SELECT_FAIL;
             exit(4);
         }
         // run through the existing connections looking for data to read
@@ -182,7 +181,7 @@ int Binder::init() {
 
                     if (newfd == -1)
                     {
-                        perror("accept");
+                        return ERR_BINDER_ACCEPT_FAIL;
                     }
                     else
                     {
@@ -202,17 +201,17 @@ int Binder::init() {
                         // got error or connection closed by client
                         if (nbytes == 0) {
                             // connection closed
-                            printf("selectserver: socket %d hung up\n", i);
                             if (binder_db.socket_map.find(i) != binder_db.socket_map.end()) {
                                 int q =update_binder_dbs(i);
                                 if (q < 0) {
-                                    cout << "Binder db update failure" << endl;
+                                    return ERR_BINDER_DB_UPDATE_FAIL -30;
                                 }
                             }
 
 
                         } else {
-                            perror("recv");
+                            return ERR_BINDER_RECV_FAIL;
+
                         }
                         close(i); // bye!
                         FD_CLR(i, &master); // remove from master set
@@ -232,8 +231,6 @@ int Binder::init() {
 
 int Binder::update_binder_dbs(int socket) {
     ServerInfo s = binder_db.socket_map[socket];
-    cout << s.host << endl;
-    cout << s.port << endl;
 
     string key = "";
     vector<ServerInfo> v;
@@ -244,12 +241,7 @@ int Binder::update_binder_dbs(int socket) {
 
         key = it->first;
         v = it->second;
-        cout << "key" << key << endl;
         for(vector<ServerInfo>::size_type i = 0; i != v.size(); i++) {
-            cout << "s host" << s.host << endl;
-            cout << "s port" << s.port << endl;
-            cout << "v host" << v[i].host << endl;
-            cout << "v port" << v[i].port << endl;
             if (s.host == v[i].host && s.port == v[i].port) {
                 keys.push_back(key);
             }
@@ -313,8 +305,6 @@ ServerInfo get_server_to_service(string key) {
         }
 
     }
-    cout << servers.size() << endl;
-    cout << index_of_server << endl;
 
     // Pop the server at the index found
     servers.erase(servers.begin() + index_of_server);
@@ -327,7 +317,6 @@ ServerInfo get_server_to_service(string key) {
 
 int Binder::send_location_response(int socket, string key) {
 
-    cout << "Sending Location Response with Key: " << key << endl;
     int msg_type;
     int reason_code;
     int send_bytes = 4;
@@ -347,9 +336,6 @@ int Binder::send_location_response(int socket, string key) {
     }
     else {
         ServerInfo s = get_server_to_service(key);
-
-        cout << "Binder:ServerInfo:" << s.host << endl;
-        cout << "Binder:ServerPort:" << s.port << endl;
 
         msg_type = htonl(LOCATION_SUCCESS);
         res =send_all(socket,(char *)&msg_type,&send_bytes);
@@ -384,8 +370,6 @@ int Binder::receive_location_request(int socket, int length) {
     memcpy (key, buff, key_size);
     key[key_size] ='\0';
     delete [] buff;
-    cout << "Key" << key << endl;
-    cout << "Key size" << key_size << endl;
     return send_location_response(socket, key);
 }
 
