@@ -69,7 +69,7 @@ int rpcInit() {
  * */
 int rpcRegister(char* name, int* argTypes, skeleton f) {
 
-    string flag;
+    int flag;
     int arg_length = 0;
     while (argTypes[arg_length++]);
 
@@ -92,11 +92,14 @@ int rpcRegister(char* name, int* argTypes, skeleton f) {
     cout << "Message to binder is sent" << endl;
 
     int m_recv = recv(s.get_binder_socket(),&flag,4,0);
-    if (atoi(flag.c_str()) == REGISTER_FAILURE) {
+    cout << "Got here" << endl;
+    int n_flag = ntohl(flag);
+    if (n_flag == REGISTER_FAILURE) {
         return ERR_SENDING_REG;
     }
     else {
-        return server_db.update_db(atoi(flag.c_str()),func,f);
+    cout << "Got here" << endl;
+        return server_db.update_db(n_flag,func,f);
     }
 }
 

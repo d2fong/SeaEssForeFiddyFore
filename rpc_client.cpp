@@ -18,7 +18,8 @@
 #include <iostream>
 #include <stdlib.h>
 #include <map>
-
+#include <stdio.h>
+#include <string.h>
 
 using namespace std;
 Client c = Client();

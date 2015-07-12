@@ -7,6 +7,7 @@
 
 #include "Message.h"
 #include <string>
+#include <sys/select.h>
 using namespace std;
 
 

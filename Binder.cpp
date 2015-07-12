@@ -24,8 +24,8 @@ vector <ServerInfo> servers;
 ServerInfo server_to_service(string key);
 
 int Binder::send_register_response(int socket, int flag) {
-    string buf = to_stri(flag);
-    int f_send = send(socket,&buf,4,0);
+    int n_flag = htonl(flag);
+    int f_send = send(socket,&n_flag,4,0);
     if (f_send < 0) {
         return ERR_BINDER_REG_FAIL;
     }

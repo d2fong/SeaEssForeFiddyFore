@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include "DB.h"
+#include <stdlib.h>
 
 using namespace std;
 
