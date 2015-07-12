@@ -193,7 +193,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                                 int ss = stoi(marshall[m+j].c_str());
                                 memcpy(s, &ss, sizeof(short));
                                 arr[j] = *s;
-                                cout << arr[j] << endl;
                             }
                             args[i] = (void *)arr;
                             m +=arr_len;
@@ -217,7 +216,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                                 int aa = stol(marshall[m+j].c_str());
                                 memcpy(a, &aa, sizeof(int));
                                 arr[j] = *a;
-                                cout << arr[j] << endl;
                             }
                             args[i] = (void *)arr;
                             m +=arr_len;
@@ -241,7 +239,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                                 long a = stol(marshall[m+j].c_str());
                                 memcpy(l, &a, sizeof(long));
                                 arr[j] = *l;
-                                cout << arr[j] << endl;
                             }
                             args[i] = (void *)arr;
                             m +=arr_len;
@@ -265,7 +262,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                                 double dd = stod(marshall[m+j].c_str());
                                 memcpy(d, &dd, sizeof(double));
                                 arr[j] = *d;
-                                cout << arr[j] << endl;
                             }
                             args[i] = (void *)arr;
                             m =+arr_len;
@@ -289,7 +285,6 @@ int rpcCall(char* name, int* argTypes, void** args) {
                                 float ff = stof(marshall[m+j].c_str());
                                 memcpy(f, &ff, sizeof(float));
                                 arr[j] = *f;
-                                cout << arr[j] << endl;
                             }
                             args[i] = (void *)arr;
                             m =+arr_len;

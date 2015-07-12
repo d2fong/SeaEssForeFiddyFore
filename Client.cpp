@@ -102,9 +102,7 @@ int Client::send_location_request(LocationRequestMessage m, int binderSocket) {
     memcpy(buffer,&b_type, 4); // Copy Type
     memcpy(buffer+4,&b_length, 4); // Copy Length
     memcpy(buffer+8, func.get_key().c_str(),key_size); //Key
-
-    cout << "A" << func.get_key().c_str() << endl;
-
+    
     int byte_length = cbf_length+ ibf_length;
     return send_all(binderSocket, buffer, &byte_length);
 }
