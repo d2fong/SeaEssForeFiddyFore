@@ -14,7 +14,7 @@ How to compile:
 
 	To compile the code, you need to run make:
 
-			make
+			make default
 
 	This will create the binder executable named 'binder' and the librpc.a library to be used
 
