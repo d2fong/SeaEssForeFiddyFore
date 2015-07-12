@@ -8,7 +8,12 @@
 int f0(int a, int b) {
 
   return a + b;
-}   
+}
+
+int f00(int a, int b) {
+
+  return a - b;
+}
 
 
 /* returns: OUT; a, b, c, d: IN */

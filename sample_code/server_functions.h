@@ -13,6 +13,8 @@
 
 int f0(int a, int b);                    /* return: OUT; a, b: IN */
 
+int f00(int a, int b);
+
 long f1(char a, short b, int c, long d); /* returns: OUT; a, b, c, d: IN */
 
 char* f2(float a, double b);             /* return: OUT string; a, b: IN */

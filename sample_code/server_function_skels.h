@@ -5,6 +5,7 @@
  */
 
 int f0_Skel(int* a, void** b);
+int f00_Skel(int* a, void** b);
 int f1_Skel(int* a, void** b);
 int f2_Skel(int* a, void** b);
 int f3_Skel(int* a, void** b);

@@ -26,8 +26,17 @@ int BinderDB::update_db(string f_name, string s_name, int port, string key, int 
     ServerInfo s = ServerInfo(s_name,port);
     vector<ServerInfo> servers;
 
+
+    cout << "SOCKET MAP SIZE" << socket_map.size () << endl;
     if (socket_map.find(socket) == socket_map.end()) {
+        cout << "Didn't find in socket map" << s.host << endl;
+        cout << s.port << endl;
         socket_map.insert(map<int, ServerInfo>::value_type(socket, s));
+        cout << "after" << socket_map.size() << endl;
+        cout << "Sock host" << socket_map[socket].host << endl;
+    }
+    else {
+        socket_map[socket]= s;
     }
 
 
@@ -38,14 +47,20 @@ int BinderDB::update_db(string f_name, string s_name, int port, string key, int 
         cout << "DB: adding key" << key << endl;
     }
     else {
+        int found = 0;
         servers = lookup[key];
         for(vector<ServerInfo>::size_type i = 0; i != servers.size(); i++) {
-            if (!(servers[i].host == s_name && servers[i].port == port)) {
-                lookup[key].push_back(s);
+            if (servers[i].host == s_name && servers[i].port == port) {
+                found = 1;
+                break;
             }
-            else {
-                return REGISTER_WARNING;
-            }
+        }
+
+        if (found == 0) {
+            lookup[key].push_back(s);
+        }
+        else {
+            return REGISTER_WARNING;
         }
     }
     return REGISTER_SUCCESS;

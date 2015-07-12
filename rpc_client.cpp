@@ -54,9 +54,7 @@ int rpcCall(char* name, int* argTypes, void** args) {
     msg_type = ntohl(msg_type);
     if (msg_type == LOCAITON_FAILURE) {
         res = recv(c.get_binder_socket(), &reason_code, 4, 0);
-        if (res == -1) {
-            return ERR_PROCEDURE_NOT_FOUND;
-        }
+        return ERR_PROCEDURE_NOT_FOUND;
     }
     else if (msg_type == LOCATION_SUCCESS) {
 
